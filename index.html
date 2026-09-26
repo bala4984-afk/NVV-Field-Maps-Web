@@ -112,7 +112,7 @@
 <script src="core.js"></script>
 <script src="kml-projects.js"></script>
 <script>
-window.FeatureStyle={
+var FeatureStyle=window.FeatureStyle={
   get(f){
     f=f||{};
     const raw=(f.style&&typeof f.style==='object')?f.style:{};
@@ -369,13 +369,30 @@ window.FeatureStyle={
     cancelBtn.onclick=()=>{stopDraw();stopMeasure()};
     saveBtn.disabled=true;cancelBtn.disabled=true;
     measureBtn.onclick=()=>{if(measureOn){stopMeasure();return}stopDraw();measureOn=true;measureBtn.classList.add('active');toast('Tap map points to measure. Tap Measure again to stop.')};
-    trays.querySelector('[data-draw="delete"]').onclick=()=>{stopDraw();stopMeasure();const f=active();if(!f)return toast('Select a layer to delete first.');if(group(f)==='final')return toast('Finalized layers are locked.');document.getElementById('remove')?.click()};
+    trays.querySelector('[data-draw="delete"]').onclick=()=>{
+      stopDraw();stopMeasure();
+      const f=active();
+      if(!f)return toast('Select a layer to delete first.');
+      if(group(f)==='final')return toast('Finalized layers are locked.');
+      if(!window.confirm('Delete "'+f.name+'"?'))return;
+      commit(()=>{
+        state.features=state.features.filter(x=>x.id!==f.id);
+        if(selected===f.id)selected=null;
+      });
+      toast('Deleted.');
+    };
 
     m.on('click',e=>{
       if(measureOn){measurePts.push(e.latlng);redrawMeasure();return}
       if(!drawMode)return;
       const p={lat:e.latlng.lat,lon:normLon(e.latlng.lng),alt:null};
-      if(drawMode==='Point')drawPts=[p];
+      if(drawMode==='Point'){
+        drawPts=[p];
+        redraw();
+        saveBtn.disabled=false;
+        saveCurrent();
+        return;
+      }
       else if(drawMode==='Line'){if(drawPts.length<2)drawPts.push(p)}
       else drawPts.push(p);
       redraw();
