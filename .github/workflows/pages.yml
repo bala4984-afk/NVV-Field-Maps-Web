@@ -22,6 +22,8 @@ jobs:
         run: |
           curl -fsSL https://nvv-field-maps.bala-4984.chatgpt.site/app.js -o /tmp/host-app.js
           grep -n "FeatureStyle" /tmp/host-app.js || true
+          grep -n -C 4 "DELETE" /tmp/host-app.js || true
+          grep -n -C 4 "remove.*onclick\|onclick.*remove\|confirm(" /tmp/host-app.js || true
           curl -fsSL https://nvv-field-maps.bala-4984.chatgpt.site/trays.js -o /tmp/host-trays.js
           grep -n "FeatureStyle" /tmp/host-trays.js || true
       - uses: actions/configure-pages@v5
