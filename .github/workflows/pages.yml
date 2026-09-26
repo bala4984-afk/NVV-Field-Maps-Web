@@ -21,9 +21,9 @@ jobs:
       - name: Diagnose hosted FeatureStyle
         run: |
           curl -fsSL https://nvv-field-maps.bala-4984.chatgpt.site/app.js -o /tmp/host-app.js
-          grep -n -C 5 "FeatureStyle" /tmp/host-app.js || true
+          grep -n "FeatureStyle" /tmp/host-app.js || true
           curl -fsSL https://nvv-field-maps.bala-4984.chatgpt.site/trays.js -o /tmp/host-trays.js
-          grep -n -C 5 "FeatureStyle" /tmp/host-trays.js || true
+          grep -n "FeatureStyle" /tmp/host-trays.js || true
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
