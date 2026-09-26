@@ -8,7 +8,6 @@
 <base href="https://nvv-field-maps.bala-4984.chatgpt.site/">
 <link rel="icon" href="nvv-logo.png">
 <link rel="stylesheet" href="vendor/leaflet.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tomickigrzegorz/leaflet-rotate/dist/leaflet-rotate.css">
 <link rel="stylesheet" href="style.css">
 <style>
 #empty{display:none!important}
@@ -20,6 +19,8 @@
 .nvv-place-results button{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid #eee;border-radius:0;background:#fff;padding:10px 12px;font-size:13px}
 .nvv-place-results button:last-child{border-bottom:0}
 .nvv-rotate-hint{position:absolute;z-index:1100;right:10px;bottom:12px;background:#fff;padding:6px 9px;border-radius:6px;font-size:11px;box-shadow:0 1px 5px #0003;pointer-events:none}
+#editor{display:none!important}
+.mapbar>div:first-child{display:none!important}
 @media(max-width:800px){.nvv-place-search{top:8px;left:48px;width:calc(100% - 102px)}.nvv-rotate-hint{bottom:8px}}
 </style>
 </head>
@@ -58,7 +59,22 @@
 <dialog id="dialog"><form id="form"><h2 id="dialog-title"></h2><div id="fields"></div><p id="form-error" role="alert"></p><div class="row"><button type="button" id="cancel">Cancel</button><button class="primary" type="submit">Save</button></div></form></dialog>
 
 <script src="vendor/leaflet.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@tomickigrzegorz/leaflet-rotate/dist/leaflet-rotate.umd.min.js"></script>
+<script src="https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate-src.js"></script>
+<script>
+(function(){
+  if (!window.L || !L.map || window.__nvvRotateMapPatched) return;
+  window.__nvvRotateMapPatched = true;
+  const originalMap = L.map;
+  L.map = function(id, options){
+    const opts = Object.assign({
+      rotate: true,
+      touchRotate: true,
+      rotateControl: { closeOnZeroBearing: false }
+    }, options || {});
+    return originalMap.call(L, id, opts);
+  };
+})();
+</script>
 <script src="vendor/jszip.min.js"></script>
 <script src="vendor/proj4.js"></script>
 <script src="vendor/exceljs.min.js"></script>
@@ -89,9 +105,8 @@
   function init(){
     const m=getMap(); if(!m){setTimeout(init,300);return}
     try{
-      if(m.options){m.options.rotate=true;m.options.touchRotate=true}
       if(m.touchRotate&&m.touchRotate.enable)m.touchRotate.enable();
-      if(m.rotateControl&&m.rotateControl.addTo)m.rotateControl.addTo(m);
+      if(m.rotateControl&&m.rotateControl.setPosition)m.rotateControl.setPosition('topright');
     }catch(e){}
     const host=m.getContainer();
     const wrap=document.createElement('div');wrap.className='nvv-place-search';
