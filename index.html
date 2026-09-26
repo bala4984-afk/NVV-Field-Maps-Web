@@ -18,11 +18,24 @@
 .nvv-top-tools button{width:40px;height:40px;padding:0!important;border:0!important;border-radius:8px!important;background:#fff!important;box-shadow:0 1px 6px #0004;color:#16384a!important;font-size:19px!important;line-height:40px!important;text-align:center;cursor:pointer;font-weight:700}
 .nvv-top-tools button:disabled{opacity:.35;cursor:default}
 .nvv-top-tools button.active{outline:2px solid #2d7fb8}
-.nvv-location-btn{position:absolute;z-index:1400;top:96px;right:10px;width:40px;height:40px;padding:0!important;border:0!important;border-radius:8px!important;background:#fff!important;box-shadow:0 1px 6px #0004;color:#16384a!important;font-size:21px!important;line-height:40px!important;text-align:center;cursor:pointer}
+.nvv-location-btn{position:absolute;z-index:1400;top:148px;right:10px;width:40px;height:40px;padding:0!important;border:0!important;border-radius:8px!important;background:#fff!important;box-shadow:0 1px 6px #0004;color:#16384a!important;font-size:21px!important;line-height:40px!important;text-align:center;cursor:pointer}
 .nvv-export-menu{position:absolute;z-index:1500;top:56px;right:0;display:flex;flex-direction:column;gap:5px}
 .nvv-export-menu[hidden]{display:none!important}
 .nvv-export-menu button{width:40px!important;height:36px!important;line-height:36px!important;font-size:12px!important}
 .mapbar>div:first-child{display:none!important}
+.survey-tools{display:none!important}
+.nvv-right-trays{position:absolute;z-index:1390;top:198px;right:10px;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+.nvv-vtray{display:flex;flex-direction:column;gap:5px;background:#ffffffee;border:1px solid #bfd0d6;border-radius:10px;padding:5px;box-shadow:0 3px 12px #102b3526}
+.nvv-vtray button{width:40px;height:40px;padding:0!important;border:0!important;border-radius:8px!important;background:#fff!important;color:#16384a!important;font-size:19px!important;line-height:40px!important;text-align:center;cursor:pointer}
+.nvv-vtray button:hover{background:#e8f0f3!important}
+.nvv-vtray button.active{background:#c23865!important;color:#fff!important}
+.nvv-vtray button:disabled{opacity:.35;cursor:default}
+.nvv-vtray .tray-head{font-size:14px!important;font-weight:700!important;background:#173b49!important;color:white!important}
+.nvv-save-menu{position:absolute;right:52px;display:flex;flex-direction:column;gap:5px;background:#fff;border:1px solid #c8d5da;border-radius:8px;padding:6px;box-shadow:0 3px 12px #0003}
+.nvv-save-menu[hidden]{display:none!important}
+.nvv-save-menu label{font-size:11px;white-space:nowrap;color:#17343f}
+.nvv-save-menu input{width:110px;padding:5px;font-size:12px}
+.nvv-save-menu button{width:auto!important;height:32px!important;line-height:32px!important;padding:0 9px!important;font-size:12px!important}
 .nvv-place-search{position:absolute;z-index:1200;top:10px;left:50px;width:min(420px,calc(100% - 390px));font-family:Inter,Segoe UI,Arial,sans-serif}
 .nvv-place-search form{display:flex;background:#fff;border-radius:8px;box-shadow:0 1px 6px #0004;overflow:hidden}
 .nvv-place-search input{border:0!important;border-radius:0!important;min-width:0;padding:10px 12px!important;font-size:14px!important}
@@ -35,9 +48,13 @@
   .nvv-place-search{top:8px;left:48px;width:min(300px,calc(100% - 350px))}
   .nvv-top-tools{top:8px;right:8px;gap:4px}
   .nvv-top-tools button{width:36px;height:36px;line-height:36px!important;font-size:17px!important}
-  .nvv-location-btn{top:92px;right:8px;width:36px;height:36px;line-height:36px!important}
+  .nvv-location-btn{top:140px;right:8px;width:36px;height:36px;line-height:36px!important}
+  .nvv-right-trays{top:184px;right:8px}
+  .nvv-vtray button{width:36px;height:36px;line-height:36px!important;font-size:17px!important}
   .nvv-rotate-hint{bottom:8px}
 }
+.leaflet-top.leaflet-right{top:58px!important}
+.leaflet-control-rotate{display:none!important}
 </style>
 </head>
 <body>
@@ -213,6 +230,97 @@
     loc.onclick=()=>document.getElementById('gps')?.click();
     host.appendChild(loc);
     L.DomEvent.disableClickPropagation(loc);
+
+    // Right-side vertical trays only. Top search/top toolbar are intentionally unchanged.
+    const trays=document.createElement('div');
+    trays.className='nvv-right-trays';
+    trays.innerHTML=
+      '<div class="nvv-vtray" id="nvv-draw-tray">'+
+        '<button type="button" class="tray-head" title="Drawing tools">＋</button>'+
+        '<button type="button" data-draw="point" title="Point">●</button>'+
+        '<button type="button" data-draw="measure" title="Measure">↔</button>'+
+        '<button type="button" data-draw="line" title="Line">╱</button>'+
+        '<button type="button" data-draw="polyline" title="Polyline">⌁</button>'+
+        '<button type="button" data-draw="area" title="Area">▱</button>'+
+        '<button type="button" data-draw="save" title="Save drawing">✓</button>'+
+        '<button type="button" data-draw="delete" title="Delete selected">⌫</button>'+
+      '</div>'+
+      '<div class="nvv-vtray" id="nvv-edit-tray">'+
+        '<button type="button" class="tray-head" title="Edit tools">✎</button>'+
+        '<button type="button" data-edit="feature" title="Edit point / polyline">✎</button>'+
+        '<button type="button" data-edit="vertex" title="Add / edit vertex">＋</button>'+
+        '<button type="button" data-edit="props" title="Properties">⚙</button>'+
+      '</div>';
+    host.appendChild(trays);
+    L.DomEvent.disableClickPropagation(trays);L.DomEvent.disableScrollPropagation(trays);
+
+    const originalButtons=[...document.querySelectorAll('.survey-tools button,#tools-tray button')];
+    function byTitle(txt){
+      txt=txt.toLowerCase();
+      return originalButtons.find(b=>((b.title||'')+' '+(b.getAttribute('aria-label')||'')).toLowerCase().includes(txt));
+    }
+
+    // Existing working actions reused where available.
+    trays.querySelector('[data-draw="measure"]').onclick=()=>byTitle('measure')?.click();
+    trays.querySelector('[data-draw="point"]').onclick=()=>byTitle('add point')?.click();
+    trays.querySelector('[data-draw="line"]').onclick=()=>byTitle('draw line')?.click();
+    trays.querySelector('[data-draw="polyline"]').onclick=()=>byTitle('draw polyline')?.click();
+    trays.querySelector('[data-draw="delete"]').onclick=()=>byTitle('delete selected')?.click();
+    trays.querySelector('[data-edit="feature"]').onclick=()=>byTitle('edit selected')?.click();
+    trays.querySelector('[data-edit="vertex"]').onclick=()=>byTitle('add vertex')?.click();
+
+    // Area drawing + save options (name/color/size)
+    let areaMode=false,areaPts=[],areaLayer=L.layerGroup().addTo(m);
+    let pendingStyle={color:'#377e58',size:3};
+    const areaBtn=trays.querySelector('[data-draw="area"]');
+    function redrawArea(){
+      areaLayer.clearLayers();
+      if(areaPts.length>1)L.polygon([areaPts.map(p=>[p.lat,p.lon])],{color:pendingStyle.color,weight:pendingStyle.size,fillOpacity:.08,interactive:false}).addTo(areaLayer);
+      areaPts.forEach(p=>L.circleMarker([p.lat,p.lon],{radius:4,color:pendingStyle.color,interactive:false}).addTo(areaLayer));
+    }
+    function stopArea(){areaMode=false;areaPts=[];areaLayer.clearLayers();areaBtn.classList.remove('active')}
+    areaBtn.onclick=()=>{
+      if(areaMode){stopArea();return}
+      areaMode=true;areaPts=[];areaBtn.classList.add('active');toast('Tap area boundary vertices, then tap ✓ Save.');
+    };
+    m.on('click',e=>{if(!areaMode)return;areaPts.push({lat:e.latlng.lat,lon:((e.latlng.lng+180)%360+360)%360-180,alt:null});redrawArea()});
+
+    trays.querySelector('[data-draw="save"]').onclick=()=>{
+      if(areaMode){
+        if(areaPts.length<3)return toast('Choose at least 3 area vertices.');
+        const pts=areaPts.map(p=>({...p}));
+        modal('Save area',[
+          {id:'name',label:'Area name',value:'Area',required:true},
+          {id:'color',label:'Color',type:'color',value:pendingStyle.color},
+          {id:'size',label:'Line size',type:'number',value:pendingStyle.size,required:true}
+        ],v=>{
+          const ring=[...pts,{...pts[0]}];
+          commit(()=>{
+            const f={id:uid(),name:v.name.trim()||'Area',type:'Polygon',group:'active',sourceColor:v.color||'#377e58',size:Math.max(1,Number(v.size)||3),points:ring,ringLengths:[ring.length]};
+            state.features.push(f);selected=f.id;
+          });
+        });
+        stopArea();
+        return;
+      }
+      const finish=byTitle('finish polyline');
+      if(finish){finish.click();return}
+      toast('Start a Point, Line, Polyline or Area first.');
+    };
+
+    trays.querySelector('[data-edit="props"]').onclick=()=>{
+      const f=active();if(!f)return toast('Select a point, polyline or area first.');
+      if(group(f)==='final')return toast('Move this layer to Working survey before editing.');
+      modal('Properties',[
+        {id:'name',label:'Layer name',value:f.name,required:true},
+        {id:'color',label:'Color',type:'color',value:f.sourceColor||(f.type==='Polygon'?'#377e58':'#167e97')},
+        {id:'size',label:f.type==='Point'?'Point size':'Line size',type:'number',value:f.size||(f.type==='Point'?14:3),required:true}
+      ],v=>commit(()=>{
+        f.name=v.name.trim()||f.name;
+        f.sourceColor=v.color||f.sourceColor;
+        f.size=Math.max(1,Number(v.size)||1);
+      }));
+    };
     const wrap=document.createElement('div');wrap.className='nvv-place-search';
     wrap.innerHTML='<form><input type="search" placeholder="Search village / town / place" aria-label="Search place"><button type="submit">⌕</button></form><div class="nvv-place-results" hidden></div>';
     host.appendChild(wrap);
