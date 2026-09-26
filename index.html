@@ -142,6 +142,15 @@
     }catch(e){}
     const host=m.getContainer();
     if(host.querySelector('.nvv-place-search'))return;
+    try{
+      let changed=false;
+      for(const f of state.features||[]){
+        if('size' in f){delete f.size;changed=true}
+        if('featureStyle' in f){delete f.featureStyle;changed=true}
+        if('style' in f && f.style && typeof f.style==='object' && f.style.__nvvCustom){delete f.style;changed=true}
+      }
+      if(changed){persist();render()}
+    }catch(e){}
 
     // Compact top-right field controls
     const bar=document.createElement('div');
@@ -295,24 +304,20 @@
       if(!drawMode)return toast('Choose Point, Line, Polyline or Area first.');
       if(saveBtn.disabled)return toast('Add enough points before saving.');
       const mode=drawMode,pts=drawPts.map(p=>({...p}));
-      const defColor=mode==='Area'?'#377e58':'#167e97',defSize=mode==='Point'?14:3;
       modal('Save '+mode.toLowerCase(),[
-        {id:'name',label:'Name',value:mode,required:true},
-        {id:'color',label:'Color',type:'color',value:defColor},
-        {id:'size',label:mode==='Point'?'Point size':'Line size',type:'number',value:defSize,required:true}
+        {id:'name',label:'Name',value:mode,required:true}
       ],v=>{
         const name=v.name.trim();if(!name)throw Error('Enter a name.');
-        const color=v.color||defColor,size=Math.max(1,Number(v.size)||defSize);
         commit(()=>{
           let feature;
           if(mode==='Point'){
             const p={...pts[0],label:name};
-            feature={id:uid(),name:name,type:'Point',group:'active',sourceColor:color,size:size,points:[p]};
+            feature={id:uid(),name:name,type:'Point',group:'active',points:[p]};
           }else if(mode==='Area'){
             const ring=[...pts,{...pts[0]}];
-            feature={id:uid(),name:name,type:'Polygon',group:'active',sourceColor:color,size:size,points:ring,ringLengths:[ring.length]};
+            feature={id:uid(),name:name,type:'Polygon',group:'active',points:ring,ringLengths:[ring.length]};
           }else{
-            feature={id:uid(),name:name,type:'LineString',group:'active',sourceColor:color,size:size,points:pts};
+            feature={id:uid(),name:name,type:'LineString',group:'active',points:pts};
           }
           state.features.push(feature);selected=feature.id;
         });
@@ -355,55 +360,11 @@
     trays.querySelector('[data-edit="vertex"]').onclick=()=>{const f=active();if(!f||f.type!=='LineString')return toast('Select a line or polyline first.');if(locked())return toast('Move this layer to Working survey before editing.');document.getElementById('append')?.click()};
     trays.querySelector('[data-edit="props"]').onclick=()=>{
       const f=active();if(!f)return toast('Select a feature first.');if(group(f)==='final')return toast('Move this layer to Working survey before editing.');
-      modal('Feature style',[
-        {id:'name',label:'Layer name',value:f.name,required:true},
-        {id:'color',label:'Color',type:'color',value:f.sourceColor||(f.type==='Polygon'?'#377e58':'#167e97')},
-        {id:'size',label:f.type==='Point'?'Point size':'Line size',type:'number',value:f.size||(f.type==='Point'?14:3),required:true}
-      ],v=>commit(()=>{f.name=v.name.trim()||f.name;f.sourceColor=v.color||f.sourceColor;f.size=Math.max(1,Number(v.size)||1)}));
+      modal('Properties',[
+        {id:'name',label:'Layer name',value:f.name,required:true}
+      ],v=>commit(()=>{f.name=v.name.trim()||f.name}));
     };
 
-    // Import Feature Style: preserve source color by default; allow custom color + size after each import.
-    const importInput=document.getElementById('import');
-    importInput.addEventListener('change',()=>{
-      const before=new Set(state.features.map(f=>f.id));
-      setTimeout(()=>{
-        const added=state.features.filter(f=>!before.has(f.id));
-        if(!added.length)return;
-        const suggested=added.find(f=>f.sourceColor)?.sourceColor||'#167e97';
-        modal('Imported feature style',[
-          {id:'mode',label:'Style',options:[['preserve','Preserve imported colors'],['custom','Use one custom style']]},
-          {id:'color',label:'Custom color',type:'color',value:suggested},
-          {id:'size',label:'Point / line size',type:'number',value:3,required:true}
-        ],v=>{
-          commit(()=>{
-            for(const f of added){
-              if(v.mode==='custom')f.sourceColor=v.color||suggested;
-              if(!f.sourceColor)f.sourceColor=(f.type==='Polygon'?'#377e58':'#167e97');
-              f.size=Math.max(1,Number(v.size)||(f.type==='Point'?14:3));
-            }
-          });
-        });
-      },700);
-    });
-
-    // Styled KML export: carries feature color and point/line size.
-    if(window.Survey&&Survey.kml&&!Survey.__nvvStyledKml){
-      const esc=Survey.esc||((x)=>String(x));
-      const baseKml=Survey.kml;
-      Survey.kml=function(st){
-        const txt=baseKml(st);
-        const styles=st.features.map((f,i)=>{
-          const hex=(f.sourceColor|| (f.type==='Polygon'?'#377e58':'#167e97')).replace('#','');
-          const rr=hex.slice(0,2),gg=hex.slice(2,4),bb=hex.slice(4,6),kml='ff'+bb+gg+rr;
-          const size=Math.max(1,Number(f.size)||(f.type==='Point'?14:3));
-          return '<Style id="nvvStyle'+i+'"><LineStyle><color>'+kml+'</color><width>'+size+'</width></LineStyle><PolyStyle><color>33'+bb+gg+rr+'</color></PolyStyle><IconStyle><color>'+kml+'</color><scale>'+Math.max(.4,size/10).toFixed(2)+'</scale></IconStyle></Style>';
-        }).join('');
-        let out=txt.replace('<Document>','<Document>'+styles);
-        st.features.forEach((f,i)=>{const n='<name>'+esc(f.name)+'</name>';out=out.replace(n,n+'<styleUrl>#nvvStyle'+i+'</styleUrl>')});
-        return out;
-      };
-      Survey.__nvvStyledKml=true;
-    }
     const wrap=document.createElement('div');wrap.className='nvv-place-search';
     wrap.innerHTML='<form><input type="search" placeholder="Search village / town / place" aria-label="Search place"><button type="submit">⌕</button></form><div class="nvv-place-results" hidden></div>';
     host.appendChild(wrap);
