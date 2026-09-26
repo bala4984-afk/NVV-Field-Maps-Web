@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#102b35">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>NVV Field maps</title>
 <base href="https://nvv-field-maps.bala-4984.chatgpt.site/">
 <link rel="manifest" href="manifest.json">
@@ -61,8 +64,19 @@
 #dialog.nvv-map-save-dialog::backdrop{background:rgba(0,0,0,.12)!important}
 @media(max-width:800px){#dialog.nvv-map-save-dialog{bottom:8px!important;max-height:44vh!important;overflow:auto!important}}
 </style>
+<script>
+(function(){
+  window.__nvvClearOldCaches=true;
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister())).catch(()=>{});
+  }
+  if(window.caches){
+    caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))).catch(()=>{});
+  }
+})();
+</script>
 </head>
-<body>
+<body data-nvv-build="3db46da0-cachefix">
 <header>
   <div class="brand"><img class="nvv-logo" src="nvv-logo.png" alt="NVV Prasad — Transmission Line Survey and Engineering Services"><div><strong>NVV Field maps</strong><small>Transmission line field workspace</small></div></div>
   <span id="offline">Preparing offline use…</span><button id="help">Help</button>
