@@ -13,8 +13,17 @@
 <style>
 #empty{display:none!important}
 #editor{display:none!important}
+.mapbar{display:none!important}
+.nvv-top-tools{position:absolute;z-index:1400;top:10px;right:10px;display:flex;gap:6px;align-items:center}
+.nvv-top-tools button{width:40px;height:40px;padding:0!important;border:0!important;border-radius:8px!important;background:#fff!important;box-shadow:0 1px 6px #0004;color:#16384a!important;font-size:19px!important;line-height:40px!important;text-align:center;cursor:pointer;font-weight:700}
+.nvv-top-tools button:disabled{opacity:.35;cursor:default}
+.nvv-top-tools button.active{outline:2px solid #2d7fb8}
+.nvv-location-btn{position:absolute;z-index:1400;top:96px;right:10px;width:40px;height:40px;padding:0!important;border:0!important;border-radius:8px!important;background:#fff!important;box-shadow:0 1px 6px #0004;color:#16384a!important;font-size:21px!important;line-height:40px!important;text-align:center;cursor:pointer}
+.nvv-export-menu{position:absolute;z-index:1500;top:56px;right:0;display:flex;flex-direction:column;gap:5px}
+.nvv-export-menu[hidden]{display:none!important}
+.nvv-export-menu button{width:40px!important;height:36px!important;line-height:36px!important;font-size:12px!important}
 .mapbar>div:first-child{display:none!important}
-.nvv-place-search{position:absolute;z-index:1200;top:10px;left:50px;width:min(350px,calc(100% - 120px));font-family:Inter,Segoe UI,Arial,sans-serif}
+.nvv-place-search{position:absolute;z-index:1200;top:10px;left:50px;width:min(420px,calc(100% - 390px));font-family:Inter,Segoe UI,Arial,sans-serif}
 .nvv-place-search form{display:flex;background:#fff;border-radius:8px;box-shadow:0 1px 6px #0004;overflow:hidden}
 .nvv-place-search input{border:0!important;border-radius:0!important;min-width:0;padding:10px 12px!important;font-size:14px!important}
 .nvv-place-search button{border:0;border-left:1px solid #ddd;border-radius:0;padding:8px 12px;background:#fff;font-weight:700}
@@ -23,7 +32,10 @@
 .nvv-place-results button:last-child{border-bottom:0}
 .nvv-rotate-hint{position:absolute;z-index:1100;right:10px;bottom:12px;background:#fff;padding:6px 9px;border-radius:6px;font-size:11px;box-shadow:0 1px 5px #0003;pointer-events:none}
 @media(max-width:800px){
-  .nvv-place-search{top:8px;left:48px;width:min(300px,calc(100% - 105px))}
+  .nvv-place-search{top:8px;left:48px;width:min(300px,calc(100% - 350px))}
+  .nvv-top-tools{top:8px;right:8px;gap:4px}
+  .nvv-top-tools button{width:36px;height:36px;line-height:36px!important;font-size:17px!important}
+  .nvv-location-btn{top:92px;right:8px;width:36px;height:36px;line-height:36px!important}
   .nvv-rotate-hint{bottom:8px}
 }
 </style>
@@ -111,6 +123,96 @@
     }catch(e){}
     const host=m.getContainer();
     if(host.querySelector('.nvv-place-search'))return;
+
+    // Compact top-right field controls
+    const bar=document.createElement('div');
+    bar.className='nvv-top-tools';
+    bar.innerHTML=
+      '<button type="button" id="nvv-undo" title="Undo" aria-label="Undo">↶</button>'+
+      '<button type="button" id="nvv-redo" title="Redo" aria-label="Redo">↷</button>'+
+      '<button type="button" id="nvv-import" title="Import KML / KMZ" aria-label="Import">⇧</button>'+
+      '<div style="position:relative"><button type="button" id="nvv-export" title="Export" aria-label="Export">⇩</button><div class="nvv-export-menu" hidden><button type="button" data-target="kml">KML</button><button type="button" data-target="dxf">DXF</button><button type="button" data-target="excel">XLS</button></div></div>'+
+      '<button type="button" id="nvv-projects" title="My Projects" aria-label="My Projects">▣</button>'+
+      '<button type="button" id="nvv-fit" title="Fit Survey" aria-label="Fit Survey">⛶</button>';
+    host.appendChild(bar);
+    L.DomEvent.disableClickPropagation(bar);L.DomEvent.disableScrollPropagation(bar);
+
+    const undoBtn=bar.querySelector('#nvv-undo');
+    const redoBtn=bar.querySelector('#nvv-redo');
+    const importBtn=bar.querySelector('#nvv-import');
+    const exportBtn=bar.querySelector('#nvv-export');
+    const exportMenu=bar.querySelector('.nvv-export-menu');
+    const projectsBtn=bar.querySelector('#nvv-projects');
+    const fitBtn=bar.querySelector('#nvv-fit');
+
+    importBtn.onclick=()=>document.getElementById('import')?.click();
+    fitBtn.onclick=()=>document.getElementById('fit')?.click();
+
+    exportBtn.onclick=()=>{
+      exportMenu.hidden=!exportMenu.hidden;
+      exportBtn.classList.toggle('active',!exportMenu.hidden);
+    };
+    exportMenu.querySelectorAll('button').forEach(b=>{
+      b.onclick=()=>{
+        document.getElementById(b.dataset.target)?.click();
+        exportMenu.hidden=true;exportBtn.classList.remove('active');
+      };
+    });
+
+    // Open the existing Projects tray/panel created by trays.js when available.
+    projectsBtn.onclick=()=>{
+      const candidates=[...document.querySelectorAll('button')].filter(b=>{
+        const t=((b.title||'')+' '+(b.getAttribute('aria-label')||'')+' '+(b.textContent||'')).toLowerCase();
+        return b!==projectsBtn && t.includes('project');
+      });
+      if(candidates.length){candidates[0].click();return;}
+      const aside=document.querySelector('main>aside');
+      if(aside){const show=getComputedStyle(aside).display==='none';aside.style.display=show?'block':'none';projectsBtn.classList.toggle('active',show);}
+    };
+
+    // Proper Undo / Redo using the app's existing state/history when available.
+    let redoHistory=[];
+    try{
+      const hiddenUndo=document.getElementById('undo');
+      const originalCommit=commit;
+      commit=function(fn){
+        redoHistory=[];
+        const out=originalCommit(fn);
+        syncHistoryButtons();
+        return out;
+      };
+      hiddenUndo.onclick=()=>{
+        if(!history.length)return;
+        redoHistory.push(JSON.stringify(state));
+        state=JSON.parse(history.pop());
+        persist();render();syncHistoryButtons();
+      };
+      undoBtn.onclick=()=>hiddenUndo.click();
+      redoBtn.onclick=()=>{
+        if(!redoHistory.length)return;
+        history.push(JSON.stringify(state));
+        state=JSON.parse(redoHistory.pop());
+        persist();render();syncHistoryButtons();
+      };
+      function syncHistoryButtons(){
+        undoBtn.disabled=!history.length;
+        redoBtn.disabled=!redoHistory.length;
+      }
+      const originalRender=render;
+      render=function(){const out=originalRender();syncHistoryButtons();return out;};
+      syncHistoryButtons();
+    }catch(e){
+      undoBtn.onclick=()=>document.getElementById('undo')?.click();
+      redoBtn.disabled=true;
+    }
+
+    // My Location below the North / compass control
+    const loc=document.createElement('button');
+    loc.type='button';loc.className='nvv-location-btn';loc.textContent='⌖';
+    loc.title='My Location';loc.setAttribute('aria-label','My Location');
+    loc.onclick=()=>document.getElementById('gps')?.click();
+    host.appendChild(loc);
+    L.DomEvent.disableClickPropagation(loc);
     const wrap=document.createElement('div');wrap.className='nvv-place-search';
     wrap.innerHTML='<form><input type="search" placeholder="Search village / town / place" aria-label="Search place"><button type="submit">⌕</button></form><div class="nvv-place-results" hidden></div>';
     host.appendChild(wrap);
