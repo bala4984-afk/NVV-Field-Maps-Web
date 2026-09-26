@@ -18,7 +18,7 @@
 .nvv-top-tools button{width:40px;height:40px;padding:0!important;border:0!important;border-radius:8px!important;background:#fff!important;box-shadow:0 1px 6px #0004;color:#16384a!important;font-size:19px!important;line-height:40px!important;text-align:center;cursor:pointer;font-weight:700}
 .nvv-top-tools button:disabled{opacity:.35;cursor:default}
 .nvv-top-tools button.active{outline:2px solid #2d7fb8}
-.nvv-location-btn{position:absolute;z-index:1400;top:148px;right:10px;width:40px;height:40px;padding:0!important;border:0!important;border-radius:8px!important;background:#fff!important;box-shadow:0 1px 6px #0004;color:#16384a!important;font-size:21px!important;line-height:40px!important;text-align:center;cursor:pointer}
+.nvv-location-btn{position:absolute;z-index:1400;top:148px;right:10px;width:48px;height:48px;padding:0!important;border:0!important;border-radius:10px!important;background:#fff!important;box-shadow:0 1px 6px #0004;color:#16384a!important;font-size:28px!important;line-height:48px!important;text-align:center;cursor:pointer}
 .nvv-export-menu{position:absolute;z-index:1500;top:56px;right:0;display:flex;flex-direction:column;gap:5px}
 .nvv-export-menu[hidden]{display:none!important}
 .nvv-export-menu button{width:40px!important;height:36px!important;line-height:36px!important;font-size:12px!important}
@@ -50,13 +50,16 @@
   .nvv-place-search{top:8px;left:48px;width:min(300px,calc(100% - 350px))}
   .nvv-top-tools{top:8px;right:8px;gap:4px}
   .nvv-top-tools button{width:36px;height:36px;line-height:36px!important;font-size:17px!important}
-  .nvv-location-btn{top:140px;right:8px;width:36px;height:36px;line-height:36px!important}
+  .nvv-location-btn{top:140px;right:8px;width:44px;height:44px;line-height:44px!important;font-size:26px!important}
   .nvv-right-trays{top:184px;right:8px}
   .nvv-vtray button{width:36px;height:36px;line-height:36px!important;font-size:17px!important}
   .nvv-rotate-hint{bottom:8px}
 }
 .leaflet-top.leaflet-right{top:58px!important}
 .leaflet-control-rotate{display:none!important}
+#dialog.nvv-map-save-dialog{top:auto!important;bottom:12px!important;left:50%!important;transform:translateX(-50%)!important;margin:0!important;width:min(92vw,420px)!important;max-width:min(92vw,420px)!important}
+#dialog.nvv-map-save-dialog::backdrop{background:rgba(0,0,0,.12)!important}
+@media(max-width:800px){#dialog.nvv-map-save-dialog{bottom:8px!important;max-height:44vh!important;overflow:auto!important}}
 </style>
 </head>
 <body>
@@ -268,7 +271,28 @@ var FeatureStyle=window.FeatureStyle={
     const loc=document.createElement('button');
     loc.type='button';loc.className='nvv-location-btn';loc.textContent='⌖';
     loc.title='My Location';loc.setAttribute('aria-label','My Location');
-    loc.onclick=()=>document.getElementById('gps')?.click();
+    loc.onclick=()=>{
+      if(!navigator.geolocation){toast('Location is not supported on this device.');return;}
+      navigator.geolocation.getCurrentPosition(pos=>{
+        const lat=pos.coords.latitude, lon=pos.coords.longitude, acc=pos.coords.accuracy||0;
+        m.setView([lat,lon],Math.max(m.getZoom(),17));
+        if(window.__nvvGpsLayer)window.__nvvGpsLayer.remove();
+        window.__nvvGpsLayer=L.layerGroup().addTo(m);
+        L.circle([lat,lon],{radius:acc,color:'#167e97',weight:1,fillOpacity:.08,interactive:false}).addTo(window.__nvvGpsLayer);
+        L.circleMarker([lat,lon],{radius:8,color:'#167e97',weight:3,fillColor:'#fff',fillOpacity:1}).addTo(window.__nvvGpsLayer);
+        if(window.confirm('Save this location as a point?')){
+          document.getElementById('dialog')?.classList.add('nvv-map-save-dialog');
+          modal('Save location',[{id:'name',label:'Name',value:'Location',required:true}],v=>{
+            const name=v.name.trim(); if(!name)throw Error('Enter a name.');
+            commit(()=>{
+              const p={lat,lon:((lon+180)%360+360)%360-180,alt:pos.coords.altitude==null?null:Number(pos.coords.altitude),label:name};
+              const feature={id:uid(),name,type:'Point',group:'active',points:[p]};
+              state.features.push(feature); selected=feature.id;
+            });
+          });
+        }
+      },err=>toast(err.message||'Unable to get location.'),{enableHighAccuracy:true,timeout:15000,maximumAge:0});
+    };
     host.appendChild(loc);
     L.DomEvent.disableClickPropagation(loc);
 
@@ -320,7 +344,7 @@ var FeatureStyle=window.FeatureStyle={
       stopMeasure();stopDraw();drawMode=mode;
       const b=trays.querySelector('[data-draw="'+mode.toLowerCase()+'"]');if(b)b.classList.add('active');
       cancelBtn.disabled=false;saveBtn.disabled=true;
-      toast(mode==='Point'?'Tap map once, then Save.':mode==='Line'?'Tap 2 points, then Save.':mode==='Polyline'?'Tap vertices, then Save.':'Tap area boundary vertices, then Save.');
+      toast(mode==='Point'?'Tap map once to save point.':mode==='Line'?'Tap 2 points to save line.':mode==='Polyline'?'Tap vertices, then ✓ Save.':'Tap area boundary vertices, then ✓ Save.');
     }
     function redraw(){
       preview.clearLayers();if(!drawPts.length)return;
@@ -331,25 +355,37 @@ var FeatureStyle=window.FeatureStyle={
       saveBtn.disabled=!((drawMode==='Point'&&drawPts.length===1)||(drawMode==='Line'&&drawPts.length===2)||(drawMode==='Polyline'&&drawPts.length>=2)||(drawMode==='Area'&&drawPts.length>=3));
     }
     function saveCurrent(){
-      if(!drawMode)return toast('Choose Point, Line, Polyline or Area first.');
+      if(measureOn){
+        if(measurePts.length<2)return toast('Measure at least 2 points first.');
+        const pts=measurePts.map(ll=>({lat:ll.lat,lon:normLon(ll.lng),alt:null}));
+        document.getElementById('dialog')?.classList.add('nvv-map-save-dialog');
+        modal('Save measure',[{id:'name',label:'Name',value:'Measure',required:true}],v=>{
+          const name=v.name.trim(); if(!name)throw Error('Enter a name.');
+          commit(()=>{
+            const feature={id:uid(),name,type:'LineString',group:'active',points:pts};
+            state.features.push(feature); selected=feature.id;
+          });
+        });
+        stopMeasure(); saveBtn.disabled=true; cancelBtn.disabled=true; return;
+      }
+      if(!drawMode)return toast('Choose Point, Measure, Line, Polyline or Area first.');
       if(saveBtn.disabled)return toast('Add enough points before saving.');
       const mode=drawMode,pts=drawPts.map(p=>({...p}));
-      modal('Save '+mode.toLowerCase(),[
-        {id:'name',label:'Name',value:mode,required:true}
-      ],v=>{
-        const name=v.name.trim();if(!name)throw Error('Enter a name.');
+      document.getElementById('dialog')?.classList.add('nvv-map-save-dialog');
+      modal('Save '+mode.toLowerCase(),[{id:'name',label:'Name',value:mode,required:true}],v=>{
+        const name=v.name.trim(); if(!name)throw Error('Enter a name.');
         commit(()=>{
           let feature;
           if(mode==='Point'){
             const p={...pts[0],label:name};
-            feature={id:uid(),name:name,type:'Point',group:'active',points:[p]};
+            feature={id:uid(),name,type:'Point',group:'active',points:[p]};
           }else if(mode==='Area'){
             const ring=[...pts,{...pts[0]}];
-            feature={id:uid(),name:name,type:'Polygon',group:'active',points:ring,ringLengths:[ring.length]};
+            feature={id:uid(),name,type:'Polygon',group:'active',points:ring,ringLengths:[ring.length]};
           }else{
-            feature={id:uid(),name:name,type:'LineString',group:'active',points:pts};
+            feature={id:uid(),name,type:'LineString',group:'active',points:pts};
           }
-          state.features.push(feature);selected=feature.id;
+          state.features.push(feature); selected=feature.id;
         });
       });
       stopDraw();
@@ -358,7 +394,7 @@ var FeatureStyle=window.FeatureStyle={
       measureLayer.clearLayers();let total=0;
       if(measurePts.length)L.polyline(measurePts,{color:'#c23865',weight:3,dashArray:'6 5',interactive:false}).addTo(measureLayer);
       measurePts.forEach((p,i)=>{L.circleMarker(p,{radius:5,color:'#c23865',interactive:false}).addTo(measureLayer);if(i)total+=m.distance(measurePts[i-1],p)});
-      if(measurePts.length>1)toast('Measured distance: '+total.toFixed(2)+' m');
+      if(measurePts.length>1){saveBtn.disabled=false;cancelBtn.disabled=false;toast('Measured distance: '+total.toFixed(2)+' m');}
     }
 
     trays.querySelector('[data-draw="point"]').onclick=()=>startDraw('Point');
@@ -368,7 +404,11 @@ var FeatureStyle=window.FeatureStyle={
     saveBtn.onclick=saveCurrent;
     cancelBtn.onclick=()=>{stopDraw();stopMeasure()};
     saveBtn.disabled=true;cancelBtn.disabled=true;
-    measureBtn.onclick=()=>{if(measureOn){stopMeasure();return}stopDraw();measureOn=true;measureBtn.classList.add('active');toast('Tap map points to measure. Tap Measure again to stop.')};
+    measureBtn.onclick=()=>{
+      if(measureOn){stopMeasure();saveBtn.disabled=true;cancelBtn.disabled=true;return;}
+      stopDraw();measureOn=true;measureBtn.classList.add('active');saveBtn.disabled=true;cancelBtn.disabled=false;
+      toast('Tap map points to measure. Use ✓ Save when finished.');
+    };
     trays.querySelector('[data-draw="delete"]').onclick=()=>{
       stopDraw();stopMeasure();
       const f=active();
@@ -383,18 +423,19 @@ var FeatureStyle=window.FeatureStyle={
     };
 
     m.on('click',e=>{
-      if(measureOn){measurePts.push(e.latlng);redrawMeasure();return}
+      if(measureOn){measurePts.push(e.latlng);redrawMeasure();return;}
       if(!drawMode)return;
       const p={lat:e.latlng.lat,lon:normLon(e.latlng.lng),alt:null};
       if(drawMode==='Point'){
-        drawPts=[p];
+        drawPts=[p]; redraw(); saveBtn.disabled=false; saveCurrent(); return;
+      }
+      if(drawMode==='Line'){
+        if(drawPts.length<2)drawPts.push(p);
         redraw();
-        saveBtn.disabled=false;
-        saveCurrent();
+        if(drawPts.length===2){saveBtn.disabled=false;saveCurrent();return;}
         return;
       }
-      else if(drawMode==='Line'){if(drawPts.length<2)drawPts.push(p)}
-      else drawPts.push(p);
+      drawPts.push(p);
       redraw();
     });
 
@@ -411,6 +452,9 @@ var FeatureStyle=window.FeatureStyle={
         {id:'name',label:'Layer name',value:f.name,required:true}
       ],v=>commit(()=>{f.name=v.name.trim()||f.name}));
     };
+
+    const dialog=document.getElementById('dialog');
+    dialog?.addEventListener('close',()=>dialog.classList.remove('nvv-map-save-dialog'));
 
     const wrap=document.createElement('div');wrap.className='nvv-place-search';
     wrap.innerHTML='<form><input type="search" placeholder="Search village / town / place" aria-label="Search place"><button type="submit">⌕</button></form><div class="nvv-place-results" hidden></div>';
@@ -437,6 +481,33 @@ var FeatureStyle=window.FeatureStyle={
         });
       }catch(err){if(err.name!=='AbortError')results.textContent='Place search needs internet.'}
     });
+    const kmlBtn=document.getElementById('kml');
+    if(kmlBtn){
+      kmlBtn.onclick=()=>{
+        try{
+          const fs=(state.features||[]).filter(f=>f.hidden!==true);
+          if(!fs.length)throw Error('No visible layers to export.');
+          const esc=x=>String(x??'').replace(/[<>&"']/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&apos;'}[c]));
+          const coord=p=>p.lon+','+p.lat+(p.alt==null?'':','+p.alt);
+          const pm=[];
+          for(const f of fs){
+            if(f.type==='Point'){
+              pm.push('<Placemark><name>'+esc(f.name)+'</name><Point><coordinates>'+coord(f.points[0])+'</coordinates></Point></Placemark>');
+            }else if(f.type==='LineString'){
+              pm.push('<Placemark><name>'+esc(f.name)+'</name><LineString><tessellate>1</tessellate><coordinates>'+f.points.map(coord).join(' ')+'</coordinates></LineString></Placemark>');
+            }else if(f.type==='Polygon'){
+              const ring=(window.Survey&&Survey.rings)?Survey.rings(f)[0]:f.points;
+              pm.push('<Placemark><name>'+esc(f.name)+'</name><Polygon><outerBoundaryIs><LinearRing><coordinates>'+ring.map(coord).join(' ')+'</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>');
+            }
+          }
+          const xml='<?xml version="1.0" encoding="UTF-8"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>'+esc(state.name||'Survey')+'</name>'+pm.join('')+'</Document></kml>';
+          const url=URL.createObjectURL(new Blob([xml],{type:'application/vnd.google-earth.kml+xml'}));
+          const a=document.createElement('a');a.href=url;a.download=((state.name||'survey').replace(/[^\\w\\- ]/g,'_')||'survey')+'.kml';document.body.appendChild(a);a.click();a.remove();
+          setTimeout(()=>URL.revokeObjectURL(url),10000); toast('KML exported.');
+        }catch(e){toast(e.message||'KML export failed.');}
+      };
+    }
+
     const hint=document.createElement('div');hint.className='nvv-rotate-hint';hint.textContent='Two-finger rotate • compass resets North';host.appendChild(hint);
   }
   init();
