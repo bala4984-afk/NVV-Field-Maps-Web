@@ -111,7 +111,37 @@
 <script src="vendor/exceljs.min.js"></script>
 <script src="core.js"></script>
 <script src="kml-projects.js"></script>
-<script src="app.js"></script>
+<script>
+window.FeatureStyle={
+  get(f){
+    f=f||{};
+    const raw=(f.style&&typeof f.style==='object')?f.style:{};
+    const color=raw.color||f.sourceColor||(f.type==='Polygon'?'#377e58':'#167e97');
+    const width=Math.max(1,Number(raw.width)||3);
+    const pointSize=Math.max(8,Number(raw.pointSize||raw.size)||14);
+    const labels=raw.labels!==false;
+    return {color,width,pointSize,labels};
+  },
+  path(f){
+    const st=this.get(f);
+    return {color:st.color,opacity:1,fillColor:st.color,fillOpacity:f&&f.type==='Polygon'?0.12:0};
+  },
+  icon(f){
+    const st=this.get(f),n=Math.min(32,Math.max(8,st.pointSize));
+    return L.divIcon({
+      className:'vertex-dot',
+      html:'<span style="display:block;width:100%;height:100%;border-radius:50%;background:'+st.color+'"></span>',
+      iconSize:[n,n],
+      iconAnchor:[n/2,n/2]
+    });
+  },
+  label(f,text){
+    const el=document.createElement('span');
+    el.textContent=String(text??'');
+    return el;
+  }
+};
+</script><script src="app.js"></script>
 <script src="villages.js"></script>
 <script src="boundary-core.js"></script>
 <script src="boundaries.js"></script>
