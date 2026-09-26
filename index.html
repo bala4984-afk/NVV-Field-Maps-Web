@@ -17,7 +17,7 @@
 #empty{display:none!important}
 #editor{display:none!important}
 .mapbar{display:none!important}
-.nvv-top-tools{position:absolute;z-index:1400;top:10px;right:10px;display:flex;gap:6px;align-items:center}
+.nvv-top-tools{position:absolute!important;display:flex!important;visibility:visible!important;opacity:1!important;z-index:5000!important;top:10px;right:10px;display:flex;gap:6px;align-items:center}
 .nvv-top-tools button{width:40px;height:40px;padding:0!important;border:0!important;border-radius:8px!important;background:#fff!important;box-shadow:0 1px 6px #0004;color:#16384a!important;font-size:19px!important;line-height:40px!important;text-align:center;cursor:pointer;font-weight:700}
 .nvv-top-tools button:disabled{opacity:.35;cursor:default}
 .nvv-top-tools button.active{outline:2px solid #2d7fb8}
@@ -27,7 +27,7 @@
 .nvv-export-menu button{width:40px!important;height:36px!important;line-height:36px!important;font-size:12px!important}
 .mapbar>div:first-child{display:none!important}
 .survey-tools{display:none!important}
-.nvv-right-trays{position:absolute;z-index:1390;top:198px;right:10px;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+.nvv-right-trays{position:absolute!important;display:flex!important;visibility:visible!important;opacity:1!important;z-index:4990!important;top:198px;right:10px;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
 .nvv-vtray{display:flex;flex-direction:column;gap:5px;background:#ffffffee;border:1px solid #bfd0d6;border-radius:10px;padding:5px;box-shadow:0 3px 12px #102b3526}
 .nvv-vtray-panel{display:flex;flex-direction:column;gap:5px}
 .nvv-vtray-panel[hidden]{display:none!important}
@@ -41,7 +41,7 @@
 .nvv-save-menu label{font-size:11px;white-space:nowrap;color:#17343f}
 .nvv-save-menu input{width:110px;padding:5px;font-size:12px}
 .nvv-save-menu button{width:auto!important;height:32px!important;line-height:32px!important;padding:0 9px!important;font-size:12px!important}
-.nvv-place-search{position:absolute;z-index:1200;top:10px;left:50px;width:min(420px,calc(100% - 390px));font-family:Inter,Segoe UI,Arial,sans-serif}
+.nvv-place-search{position:absolute!important;display:block!important;visibility:visible!important;opacity:1!important;z-index:4980!important;top:10px;left:50px;width:min(420px,calc(100% - 390px));font-family:Inter,Segoe UI,Arial,sans-serif}
 .nvv-place-search form{display:flex;background:#fff;border-radius:8px;box-shadow:0 1px 6px #0004;overflow:hidden}
 .nvv-place-search input{border:0!important;border-radius:0!important;min-width:0;padding:10px 12px!important;font-size:14px!important}
 .nvv-place-search button{border:0;border-left:1px solid #ddd;border-radius:0;padding:8px 12px;background:#fff;font-weight:700}
@@ -177,18 +177,26 @@ var FeatureStyle=window.FeatureStyle={
 <script>
 (function(){
   function getMap(){
-    try{if(typeof map!=='undefined'&&map&&map.setView)return map}catch(e){}
-    for(const k of Object.keys(window)){try{const v=window[k];if(v&&typeof v.setView==='function'&&typeof v.getCenter==='function'&&typeof v.eachLayer==='function')return v}catch(e){}}
+    try{
+      if(typeof map!=='undefined' && map && typeof map.setView==='function') return map;
+    }catch(e){}
+    try{
+      const el=document.getElementById('map');
+      if(el && el._leaflet_id && window.L && L._instances && L._instances[el._leaflet_id]) return L._instances[el._leaflet_id];
+    }catch(e){}
     return null;
   }
   function init(){
-    const m=getMap();if(!m){setTimeout(init,250);return}
+    const mapEl=document.getElementById('map');
+    if(!mapEl){setTimeout(init,250);return}
+    const m=getMap();
+    if(!m){setTimeout(init,250);return}
     try{
       if(m.touchRotate&&m.touchRotate.enable)m.touchRotate.enable();
       if(m.rotateControl&&m.rotateControl.setPosition)m.rotateControl.setPosition('topright');
     }catch(e){}
     const host=m.getContainer();
-    if(host.querySelector('.nvv-place-search'))return;
+    host.querySelectorAll('.nvv-top-tools,.nvv-right-trays,.nvv-place-search,.nvv-location-btn,.nvv-rotate-hint').forEach(el=>el.remove());
     try{
       let changed=false;
       for(const f of state.features||[]){
@@ -524,7 +532,13 @@ var FeatureStyle=window.FeatureStyle={
 
     const hint=document.createElement('div');hint.className='nvv-rotate-hint';hint.textContent='Two-finger rotate • compass resets North';host.appendChild(hint);
   }
-  init();
+  window.addEventListener('error',e=>{
+    window.__nvvUiRuntimeError=e.message||'UI error';
+  });
+  try{init()}catch(e){
+    window.__nvvUiRuntimeError=e.message||String(e);
+    setTimeout(init,500);
+  }
 })();
 </script>
 </body>
