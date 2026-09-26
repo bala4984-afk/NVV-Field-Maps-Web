@@ -6,12 +6,15 @@
 <meta name="theme-color" content="#102b35">
 <title>NVV Field maps</title>
 <base href="https://nvv-field-maps.bala-4984.chatgpt.site/">
+<link rel="manifest" href="manifest.json">
 <link rel="icon" href="nvv-logo.png">
 <link rel="stylesheet" href="vendor/leaflet.css">
 <link rel="stylesheet" href="style.css">
 <style>
 #empty{display:none!important}
-.nvv-place-search{position:absolute;z-index:1200;top:10px;left:50px;width:min(340px,calc(100% - 320px));font-family:Inter,Segoe UI,Arial,sans-serif}
+#editor{display:none!important}
+.mapbar>div:first-child{display:none!important}
+.nvv-place-search{position:absolute;z-index:1200;top:10px;left:50px;width:min(350px,calc(100% - 120px));font-family:Inter,Segoe UI,Arial,sans-serif}
 .nvv-place-search form{display:flex;background:#fff;border-radius:8px;box-shadow:0 1px 6px #0004;overflow:hidden}
 .nvv-place-search input{border:0!important;border-radius:0!important;min-width:0;padding:10px 12px!important;font-size:14px!important}
 .nvv-place-search button{border:0;border-left:1px solid #ddd;border-radius:0;padding:8px 12px;background:#fff;font-weight:700}
@@ -19,30 +22,16 @@
 .nvv-place-results button{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid #eee;border-radius:0;background:#fff;padding:10px 12px;font-size:13px}
 .nvv-place-results button:last-child{border-bottom:0}
 .nvv-rotate-hint{position:absolute;z-index:1100;right:10px;bottom:12px;background:#fff;padding:6px 9px;border-radius:6px;font-size:11px;box-shadow:0 1px 5px #0003;pointer-events:none}
-.nvv-map-tools{position:absolute;z-index:1300;top:10px;right:10px;display:flex;gap:6px;align-items:center}
-.nvv-map-tools button{width:40px;height:40px;padding:0!important;border:0!important;border-radius:8px!important;background:#fff!important;box-shadow:0 1px 6px #0004;color:#18323c!important;font-size:20px!important;line-height:40px!important;text-align:center;cursor:pointer}
-.nvv-map-tools button:disabled{opacity:.38;cursor:default}
-.nvv-map-tools button.active{outline:2px solid #2878be}
-body:not(.projects-open) main>aside{display:none!important}
-body.projects-open main>aside{display:block!important;position:fixed!important;z-index:4000;left:0;top:var(--nvv-aside-top,64px);bottom:0;width:min(360px,92vw);overflow:auto;background:#fff;box-shadow:5px 0 18px #0004}
-body.projects-open:after{content:"";position:fixed;z-index:3990;inset:var(--nvv-aside-top,64px) 0 0 0;background:#0002;pointer-events:none}
-#editor{display:none!important}
-.mapbar>div:first-child{display:none!important}
 @media(max-width:800px){
-.nvv-place-search{top:8px;left:48px;width:calc(100% - 272px)}
-.nvv-map-tools{top:8px;right:8px;gap:4px}
-.nvv-map-tools button{width:38px;height:38px;font-size:18px;line-height:38px!important}
-.nvv-rotate-hint{bottom:8px}
+  .nvv-place-search{top:8px;left:48px;width:min(300px,calc(100% - 105px))}
+  .nvv-rotate-hint{bottom:8px}
 }
 </style>
 </head>
 <body>
 <header>
-  <div class="brand">
-    <img class="nvv-logo" src="nvv-logo.png" alt="NVV Prasad">
-    <div><strong>NVV Field maps</strong><small>Transmission line field workspace</small></div>
-  </div>
-  <span id="offline">Online</span><button id="help">Help</button>
+  <div class="brand"><img class="nvv-logo" src="nvv-logo.png" alt="NVV Prasad — Transmission Line Survey and Engineering Services"><div><strong>NVV Field maps</strong><small>Transmission line field workspace</small></div></div>
+  <span id="offline">Preparing offline use…</span><button id="help">Help</button>
 </header>
 <main>
 <aside>
@@ -56,14 +45,14 @@ body.projects-open:after{content:"";position:fixed;z-index:3990;inset:var(--nvv-
   <hr><div class="section-title">EXPORT COORDINATES</div>
   <label>Datum<input value="WGS 84" disabled></label>
   <div class="row"><label>UTM zone<input id="zone" type="number" min="1" max="60" value="44"></label><label>Hemisphere<select id="hemisphere"><option value="N">North</option><option value="S">South</option></select></label></div>
-  <p class="muted">Confirm the zone for your project.</p>
+  <p class="muted">Confirm the zone for your project. DXF uses metres; chainage uses horizontal UTM grid distance.</p>
   <div class="exports"><button id="kml">↓ KML</button><button id="dxf">↓ DXF</button><button id="excel">↓ Excel vertex report</button></div>
   <p id="saved" class="muted">No survey loaded</p>
 </aside>
 <section class="workspace">
-  <div class="mapbar" style="display:none"><div><b id="title"></b><small id="summary"></small></div><div class="row"><button id="undo" disabled>Undo</button><button id="fit">Fit survey</button><button id="gps">My location</button></div></div>
-  <div id="map"></div>
-  <div class="mapfoot"><span>Map workspace</span><span id="position">WGS 84</span></div>
+  <div class="mapbar"><div><b id="title"></b><small id="summary"></small></div><div class="row"><button id="undo" disabled>Undo</button><button id="fit">Fit survey</button><button id="gps">My location</button></div></div>
+  <div id="map"><div id="empty"></div></div>
+  <div class="mapfoot"><span>Plain map · available offline</span><span id="position">WGS 84</span></div>
   <section id="editor"><div class="editor-head"><div><h2 id="edit-title">Vertex editor</h2><p id="edit-hint">Select a layer to inspect and edit coordinates.</p></div><div class="row"><button id="rename">Rename</button><button id="append">＋ Vertex</button><button id="remove">Delete layer</button></div></div><div class="tablewrap"><table><thead><tr><th>Vertex</th><th>Latitude °</th><th>Longitude °</th><th>Source altitude m</th><th></th></tr></thead><tbody id="vertices"></tbody></table></div></section>
 </section>
 </main>
@@ -74,16 +63,15 @@ body.projects-open:after{content:"";position:fixed;z-index:3990;inset:var(--nvv-
 <script src="https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate-src.js"></script>
 <script>
 (function(){
-  if (!window.L || !L.map || window.__nvvRotateMapPatched) return;
-  window.__nvvRotateMapPatched = true;
-  const originalMap = L.map;
-  L.map = function(id, options){
-    const opts = Object.assign({
-      rotate: true,
-      touchRotate: true,
-      rotateControl: { closeOnZeroBearing: false }
-    }, options || {});
-    return originalMap.call(L, id, opts);
+  if(!window.L||!L.map||window.__nvvRotateMapPatched)return;
+  window.__nvvRotateMapPatched=true;
+  const originalMap=L.map;
+  L.map=function(id,options){
+    return originalMap.call(L,id,Object.assign({
+      rotate:true,
+      touchRotate:true,
+      rotateControl:{closeOnZeroBearing:false}
+    },options||{}));
   };
 })();
 </script>
@@ -104,80 +92,25 @@ body.projects-open:after{content:"";position:fixed;z-index:3990;inset:var(--nvv-
 <script src="excel-options.js"></script>
 <script src="project-controls.js"></script>
 <script src="location.js"></script>
+<script src="install.js"></script>
 <script src="map-options.js"></script>
 <script src="map-tools.js"></script>
 <script src="trays.js"></script>
 <script>
 (function(){
   function getMap(){
-    try{ if(typeof map!=='undefined' && map && map.setView) return map; }catch(e){}
+    try{if(typeof map!=='undefined'&&map&&map.setView)return map}catch(e){}
     for(const k of Object.keys(window)){try{const v=window[k];if(v&&typeof v.setView==='function'&&typeof v.getCenter==='function'&&typeof v.eachLayer==='function')return v}catch(e){}}
     return null;
   }
   function init(){
-    const m=getMap(); if(!m){setTimeout(init,300);return}
+    const m=getMap();if(!m){setTimeout(init,250);return}
     try{
       if(m.touchRotate&&m.touchRotate.enable)m.touchRotate.enable();
       if(m.rotateControl&&m.rotateControl.setPosition)m.rotateControl.setPosition('topright');
     }catch(e){}
     const host=m.getContainer();
-
-    const tools=document.createElement('div');tools.className='nvv-map-tools';
-    tools.innerHTML=
-      '<button type="button" id="nvv-gps" title="My location" aria-label="My location">⌖</button>'+
-      '<button type="button" id="nvv-projects" title="My projects" aria-label="My projects">▣</button>'+
-      '<button type="button" id="nvv-fit" title="Fit survey" aria-label="Fit survey">⛶</button>'+
-      '<button type="button" id="nvv-undo" title="Undo" aria-label="Undo">↶</button>'+
-      '<button type="button" id="nvv-redo" title="Redo" aria-label="Redo">↷</button>';
-    host.appendChild(tools);
-    L.DomEvent.disableClickPropagation(tools);L.DomEvent.disableScrollPropagation(tools);
-
-    const gpsBtn=tools.querySelector('#nvv-gps');
-    const projectsBtn=tools.querySelector('#nvv-projects');
-    const fitBtn=tools.querySelector('#nvv-fit');
-    const undoBtn=tools.querySelector('#nvv-undo');
-    const redoBtn=tools.querySelector('#nvv-redo');
-
-    gpsBtn.onclick=()=>document.getElementById('gps')?.click();
-    fitBtn.onclick=()=>document.getElementById('fit')?.click();
-    projectsBtn.onclick=()=>{
-      document.body.classList.toggle('projects-open');
-      projectsBtn.classList.toggle('active',document.body.classList.contains('projects-open'));
-    };
-
-    let redoHistory=[];
-    try{
-      const originalCommit=commit;
-      commit=function(fn){ redoHistory=[]; const out=originalCommit(fn); syncHistoryButtons(); return out; };
-      const hiddenUndo=document.getElementById('undo');
-      hiddenUndo.onclick=()=>{
-        if(!history.length)return;
-        redoHistory.push(JSON.stringify(state));
-        state=JSON.parse(history.pop());
-        persist();render();syncHistoryButtons();
-      };
-      undoBtn.onclick=()=>hiddenUndo.click();
-      redoBtn.onclick=()=>{
-        if(!redoHistory.length)return;
-        history.push(JSON.stringify(state));
-        state=JSON.parse(redoHistory.pop());
-        persist();render();syncHistoryButtons();
-      };
-      function syncHistoryButtons(){
-        undoBtn.disabled=!history.length;
-        redoBtn.disabled=!redoHistory.length;
-      }
-      const originalRender=render;
-      render=function(){const out=originalRender();syncHistoryButtons();return out;};
-      syncHistoryButtons();
-    }catch(e){
-      undoBtn.onclick=()=>document.getElementById('undo')?.click();
-      redoBtn.disabled=true;
-    }
-
-    const header=document.querySelector('header');
-    if(header)document.documentElement.style.setProperty('--nvv-aside-top',Math.ceil(header.getBoundingClientRect().bottom)+'px');
-
+    if(host.querySelector('.nvv-place-search'))return;
     const wrap=document.createElement('div');wrap.className='nvv-place-search';
     wrap.innerHTML='<form><input type="search" placeholder="Search village / town / place" aria-label="Search place"><button type="submit">⌕</button></form><div class="nvv-place-results" hidden></div>';
     host.appendChild(wrap);
@@ -191,7 +124,16 @@ body.projects-open:after{content:"";position:fixed;z-index:3990;inset:var(--nvv-
         const r=await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=6&countrycodes=in&addressdetails=1&q='+encodeURIComponent(q),{signal:controller.signal,headers:{Accept:'application/json'}});
         const data=await r.json();results.replaceChildren();
         if(!data.length){results.textContent='No matching place found';return}
-        data.forEach(item=>{const b=document.createElement('button');b.type='button';b.textContent=item.display_name;b.onclick=()=>{const lat=+item.lat,lon=+item.lon;m.setView([lat,lon],15);if(marker)marker.remove();marker=L.circleMarker([lat,lon],{radius:7,weight:3,color:'#b32727',fillColor:'#fff',fillOpacity:1}).addTo(m).bindTooltip(item.display_name,{direction:'top'}).openTooltip();input.value=item.display_name.split(',')[0];results.hidden=true};results.appendChild(b)});
+        data.forEach(item=>{
+          const b=document.createElement('button');b.type='button';b.textContent=item.display_name;
+          b.onclick=()=>{
+            const lat=+item.lat,lon=+item.lon;m.setView([lat,lon],15);
+            if(marker)marker.remove();
+            marker=L.circleMarker([lat,lon],{radius:7,weight:3,color:'#b32727',fillColor:'#fff',fillOpacity:1}).addTo(m).bindTooltip(item.display_name,{direction:'top'}).openTooltip();
+            input.value=item.display_name.split(',')[0];results.hidden=true;
+          };
+          results.appendChild(b);
+        });
       }catch(err){if(err.name!=='AbortError')results.textContent='Place search needs internet.'}
     });
     const hint=document.createElement('div');hint.className='nvv-rotate-hint';hint.textContent='Two-finger rotate • compass resets North';host.appendChild(hint);
@@ -199,4 +141,5 @@ body.projects-open:after{content:"";position:fixed;z-index:3990;inset:var(--nvv-
   init();
 })();
 </script>
-</body></html>
+</body>
+</html>
