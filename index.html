@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="style.css">
 <style>
 #empty{display:none!important}
-.nvv-place-search{position:absolute;z-index:1200;top:10px;left:50px;width:min(360px,calc(100% - 110px));font-family:Inter,Segoe UI,Arial,sans-serif}
+.nvv-place-search{position:absolute;z-index:1200;top:10px;left:50px;width:min(340px,calc(100% - 320px));font-family:Inter,Segoe UI,Arial,sans-serif}
 .nvv-place-search form{display:flex;background:#fff;border-radius:8px;box-shadow:0 1px 6px #0004;overflow:hidden}
 .nvv-place-search input{border:0!important;border-radius:0!important;min-width:0;padding:10px 12px!important;font-size:14px!important}
 .nvv-place-search button{border:0;border-left:1px solid #ddd;border-radius:0;padding:8px 12px;background:#fff;font-weight:700}
@@ -19,9 +19,21 @@
 .nvv-place-results button{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid #eee;border-radius:0;background:#fff;padding:10px 12px;font-size:13px}
 .nvv-place-results button:last-child{border-bottom:0}
 .nvv-rotate-hint{position:absolute;z-index:1100;right:10px;bottom:12px;background:#fff;padding:6px 9px;border-radius:6px;font-size:11px;box-shadow:0 1px 5px #0003;pointer-events:none}
+.nvv-map-tools{position:absolute;z-index:1300;top:10px;right:10px;display:flex;gap:6px;align-items:center}
+.nvv-map-tools button{width:40px;height:40px;padding:0!important;border:0!important;border-radius:8px!important;background:#fff!important;box-shadow:0 1px 6px #0004;color:#18323c!important;font-size:20px!important;line-height:40px!important;text-align:center;cursor:pointer}
+.nvv-map-tools button:disabled{opacity:.38;cursor:default}
+.nvv-map-tools button.active{outline:2px solid #2878be}
+body:not(.projects-open) main>aside{display:none!important}
+body.projects-open main>aside{display:block!important;position:fixed!important;z-index:4000;left:0;top:var(--nvv-aside-top,64px);bottom:0;width:min(360px,92vw);overflow:auto;background:#fff;box-shadow:5px 0 18px #0004}
+body.projects-open:after{content:"";position:fixed;z-index:3990;inset:var(--nvv-aside-top,64px) 0 0 0;background:#0002;pointer-events:none}
 #editor{display:none!important}
 .mapbar>div:first-child{display:none!important}
-@media(max-width:800px){.nvv-place-search{top:8px;left:48px;width:calc(100% - 102px)}.nvv-rotate-hint{bottom:8px}}
+@media(max-width:800px){
+.nvv-place-search{top:8px;left:48px;width:calc(100% - 272px)}
+.nvv-map-tools{top:8px;right:8px;gap:4px}
+.nvv-map-tools button{width:38px;height:38px;font-size:18px;line-height:38px!important}
+.nvv-rotate-hint{bottom:8px}
+}
 </style>
 </head>
 <body>
@@ -49,7 +61,7 @@
   <p id="saved" class="muted">No survey loaded</p>
 </aside>
 <section class="workspace">
-  <div class="mapbar"><div><b id="title">Your field workspace</b><small id="summary">Import a survey or search a place to begin.</small></div><div class="row"><button id="undo" disabled>Undo</button><button id="fit">Fit survey</button><button id="gps">My location</button></div></div>
+  <div class="mapbar" style="display:none"><div><b id="title"></b><small id="summary"></small></div><div class="row"><button id="undo" disabled>Undo</button><button id="fit">Fit survey</button><button id="gps">My location</button></div></div>
   <div id="map"></div>
   <div class="mapfoot"><span>Map workspace</span><span id="position">WGS 84</span></div>
   <section id="editor"><div class="editor-head"><div><h2 id="edit-title">Vertex editor</h2><p id="edit-hint">Select a layer to inspect and edit coordinates.</p></div><div class="row"><button id="rename">Rename</button><button id="append">＋ Vertex</button><button id="remove">Delete layer</button></div></div><div class="tablewrap"><table><thead><tr><th>Vertex</th><th>Latitude °</th><th>Longitude °</th><th>Source altitude m</th><th></th></tr></thead><tbody id="vertices"></tbody></table></div></section>
@@ -109,6 +121,63 @@
       if(m.rotateControl&&m.rotateControl.setPosition)m.rotateControl.setPosition('topright');
     }catch(e){}
     const host=m.getContainer();
+
+    const tools=document.createElement('div');tools.className='nvv-map-tools';
+    tools.innerHTML=
+      '<button type="button" id="nvv-gps" title="My location" aria-label="My location">⌖</button>'+
+      '<button type="button" id="nvv-projects" title="My projects" aria-label="My projects">▣</button>'+
+      '<button type="button" id="nvv-fit" title="Fit survey" aria-label="Fit survey">⛶</button>'+
+      '<button type="button" id="nvv-undo" title="Undo" aria-label="Undo">↶</button>'+
+      '<button type="button" id="nvv-redo" title="Redo" aria-label="Redo">↷</button>';
+    host.appendChild(tools);
+    L.DomEvent.disableClickPropagation(tools);L.DomEvent.disableScrollPropagation(tools);
+
+    const gpsBtn=tools.querySelector('#nvv-gps');
+    const projectsBtn=tools.querySelector('#nvv-projects');
+    const fitBtn=tools.querySelector('#nvv-fit');
+    const undoBtn=tools.querySelector('#nvv-undo');
+    const redoBtn=tools.querySelector('#nvv-redo');
+
+    gpsBtn.onclick=()=>document.getElementById('gps')?.click();
+    fitBtn.onclick=()=>document.getElementById('fit')?.click();
+    projectsBtn.onclick=()=>{
+      document.body.classList.toggle('projects-open');
+      projectsBtn.classList.toggle('active',document.body.classList.contains('projects-open'));
+    };
+
+    let redoHistory=[];
+    try{
+      const originalCommit=commit;
+      commit=function(fn){ redoHistory=[]; const out=originalCommit(fn); syncHistoryButtons(); return out; };
+      const hiddenUndo=document.getElementById('undo');
+      hiddenUndo.onclick=()=>{
+        if(!history.length)return;
+        redoHistory.push(JSON.stringify(state));
+        state=JSON.parse(history.pop());
+        persist();render();syncHistoryButtons();
+      };
+      undoBtn.onclick=()=>hiddenUndo.click();
+      redoBtn.onclick=()=>{
+        if(!redoHistory.length)return;
+        history.push(JSON.stringify(state));
+        state=JSON.parse(redoHistory.pop());
+        persist();render();syncHistoryButtons();
+      };
+      function syncHistoryButtons(){
+        undoBtn.disabled=!history.length;
+        redoBtn.disabled=!redoHistory.length;
+      }
+      const originalRender=render;
+      render=function(){const out=originalRender();syncHistoryButtons();return out;};
+      syncHistoryButtons();
+    }catch(e){
+      undoBtn.onclick=()=>document.getElementById('undo')?.click();
+      redoBtn.disabled=true;
+    }
+
+    const header=document.querySelector('header');
+    if(header)document.documentElement.style.setProperty('--nvv-aside-top',Math.ceil(header.getBoundingClientRect().bottom)+'px');
+
     const wrap=document.createElement('div');wrap.className='nvv-place-search';
     wrap.innerHTML='<form><input type="search" placeholder="Search village / town / place" aria-label="Search place"><button type="submit">⌕</button></form><div class="nvv-place-results" hidden></div>';
     host.appendChild(wrap);
