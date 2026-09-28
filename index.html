@@ -345,4 +345,43 @@ new MutationObserver(()=>{[...document.querySelectorAll('div,ul')].forEach(el=>{
  inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();clearTimeout(timer);go()}});
  document.addEventListener('pointerdown',e=>{if(!wrap.contains(e.target))list.hidden=true});
 })();
-</script></body></html>
+</script><script>(function(){
+/* Restore original route stroke rendering and expose the existing mobile editor. */
+const routeOverlay=L.layerGroup().addTo(map);
+function paintRoutes(){
+ routeOverlay.clearLayers();
+ try{
+  for(const f of state.features){
+   if(f.type!=='LineString'||(typeof visible==='function'&&!visible(f))||!f.points||f.points.length<2)continue;
+   const chosen=f.id===selected;
+   const color=(typeof group==='function'&&group(f)==='final')?'#637e96':(f.sourceColor|| (chosen?'#167e97':'#d99a31'));
+   L.polyline(f.points.map(p=>[p.lat,p.lon]),{color,weight:chosen?5:3,opacity:1,interactive:true})
+    .on('click',e=>{L.DomEvent.stopPropagation(e.originalEvent);if(typeof select==='function')select(f.id)})
+    .addTo(routeOverlay);
+  }
+ }catch(e){}
+}
+const oldRender=render;render=function(){oldRender();paintRoutes()};paintRoutes();
+
+const editor=document.getElementById('editor');if(!editor)return;
+editor.classList.add('nvv-mobile-editor');
+if(!editor.querySelector('.nvv-editor-close')){
+ const close=document.createElement('button');close.type='button';close.className='nvv-editor-close';close.textContent='×';close.setAttribute('aria-label','Close editor');editor.prepend(close);close.onclick=()=>editor.classList.remove('nvv-open');
+}
+function openEditor(){
+ if(!matchMedia('(max-width:800px)').matches)return;
+ const f=typeof active==='function'?active():null;
+ if(!f){if(typeof toast==='function')toast('Tap a saved point, line or area first.');return}
+ editor.classList.add('nvv-open');
+}
+const pencil=[...document.querySelectorAll('button')].find(b=>(b.title||'').toLowerCase().includes('edit')||['✎','✏','✏️'].includes(b.textContent.trim()));
+if(pencil)pencil.addEventListener('click',()=>setTimeout(openEditor,0));
+map.on('click',()=>setTimeout(()=>{if(typeof active==='function'&&active())openEditor()},80));
+window.nvvOpenFeatureEditor=openEditor;
+})();</script>
+<style>@media(max-width:800px){
+#editor.nvv-mobile-editor{display:none!important}
+#editor.nvv-mobile-editor.nvv-open{display:block!important;position:fixed!important;left:10px!important;right:10px!important;bottom:12px!important;top:auto!important;z-index:5000!important;max-height:58vh!important;overflow:auto!important;background:#fff!important;border-radius:18px!important;padding:16px!important;box-shadow:0 8px 32px #0005!important}
+#editor .nvv-editor-close{position:sticky;float:right;top:0;z-index:2;width:42px;height:42px;border-radius:12px;font-size:26px}
+#editor .tablewrap{overflow:auto}#editor table{min-width:620px}
+}</style></body></html>
