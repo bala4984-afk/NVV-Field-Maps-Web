@@ -33,6 +33,10 @@ main>aside #excel,main>aside #vertex-export,main>aside [data-action="vertex-expo
 .nvv-place-results>button{display:block!important;position:static!important;float:none!important;width:100%!important;height:auto!important;min-height:56px!important;max-height:none!important;margin:0!important;padding:8px 10px!important;box-sizing:border-box!important;line-height:20px!important;white-space:normal!important;overflow:visible!important;-webkit-line-clamp:unset!important;-webkit-box-orient:unset!important;border-bottom:1px solid #e3e8eb!important}
 .nvv-place-results>button:nth-of-type(n+6){display:none!important}
 #nvv-clean-place-list{display:none!important}
+</style><style>
+/* Compact live place search: exactly one line per result */
+.nvv-place-results{max-height:280px!important;overflow-y:auto!important}
+.nvv-place-results>button{display:block!important;width:100%!important;height:52px!important;min-height:52px!important;max-height:52px!important;padding:0 12px!important;line-height:52px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;-webkit-line-clamp:unset!important;-webkit-box-orient:unset!important}
 </style></head><body>
 <header><div class="brand"><img class="nvv-logo" src="nvv-logo.png" alt="NVV Prasad — Transmission Line Survey and Engineering Services"><div><strong>NVV Field maps</strong><small>Transmission line field workspace</small></div></div><span id="offline">Preparing offline use…</span><button id="help">Help</button></header>
 <main><aside><div class="section-title">PROJECT <span>01</span></div><input id="project" aria-label="Project name" value="Untitled survey"><label class="primary file">＋ Import KML / KMZ<input id="import" type="file" accept=".kml,.kmz" hidden></label><div class="row"><button id="demo">Try sample</button><button id="backup">Backup</button><label class="file button">Restore<input id="restore" type="file" accept=".json" hidden></label></div><p class="muted">Files stay on this device. Export a backup before clearing browser data.</p><div class="section-title">SURVEY LAYERS <span id="count">0</span></div><div id="features"></div><div class="row"><button id="newpoint">＋ Tower</button><button id="newline">＋ Route</button></div><hr><div class="section-title">EXPORT COORDINATES</div><label>Datum<input value="WGS 84" disabled></label><div class="row"><label>UTM zone<input id="zone" type="number" min="1" max="60" value="44"></label><label>Hemisphere<select id="hemisphere"><option value="N">North</option><option value="S">South</option></select></label></div><p class="muted">Confirm the zone for your project. DXF uses metres; chainage uses horizontal UTM grid distance.</p><div class="exports"><button id="kml">↓ KML</button><button id="dxf">↓ DXF</button><button id="excel">↓ Excel vertex report</button></div><p id="saved" class="muted">No survey loaded</p></aside>
@@ -225,4 +229,35 @@ input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();sear
 document.addEventListener('click',e=>{if(e.target!==input&&!list.contains(e.target))list.style.display='none'},true);
 /* Hide legacy suggestion boxes whenever they appear. */
 new MutationObserver(()=>{[...document.querySelectorAll('div,ul')].forEach(el=>{if(el===list||list.contains(el))return;const r=el.getBoundingClientRect(),ir=input.getBoundingClientRect();if(r.width>200&&r.left>=ir.left-10&&r.left<=ir.right&&r.top>=ir.bottom-5&&r.top<ir.bottom+30&&el.children.length>1)el.style.display='none'})}).observe(document.body,{childList:true,subtree:true});
-})();</script></body></html>
+})();</script><script>
+(function(){
+ const input=document.querySelector('.nvv-place-search input[placeholder="Search place"]');
+ const results=document.querySelector('.nvv-place-search .nvv-place-results');
+ if(!input||!results)return;
+ let timer=0,seq=0,marker=null;
+ async function liveSearch(){
+   const q=input.value.trim(),my=++seq;
+   if(q.length<2){results.hidden=true;results.replaceChildren();return}
+   try{
+     const r=await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&countrycodes=in&addressdetails=1&q='+encodeURIComponent(q),{headers:{Accept:'application/json'}});
+     const a=await r.json(); if(my!==seq)return;
+     results.replaceChildren();
+     a.slice(0,5).forEach(x=>{
+       const b=document.createElement('button'); b.type='button';
+       b.textContent=x.display_name; b.title=x.display_name;
+       b.onclick=()=>{
+         const lat=+x.lat,lon=+x.lon;
+         input.value=(x.display_name||'').split(',')[0];
+         results.hidden=true;
+         map.setView([lat,lon],15);
+         if(marker)marker.remove();
+         marker=L.circleMarker([lat,lon],{radius:7,weight:3}).addTo(map);
+       };
+       results.appendChild(b);
+     });
+     results.hidden=!a.length;
+   }catch(e){results.hidden=true}
+ }
+ input.addEventListener('input',()=>{clearTimeout(timer);timer=setTimeout(liveSearch,220)},true);
+})();
+</script></body></html>
