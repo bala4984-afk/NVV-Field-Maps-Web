@@ -20,6 +20,12 @@
 @media(max-width:800px){#gps.nvv-gps-below-n{position:fixed!important;right:17px!important;top:510px!important;z-index:2050!important;width:54px!important;height:54px!important}.survey-tools{right:10px!important}.survey-tools #tools-tray,.survey-tools #draw-tray{max-height:42vh!important;overflow:auto!important}}
 </style><style>#layers-tray #loaded-projects{display:none!important}</style><style>
 main>aside #excel,main>aside #vertex-export,main>aside [data-action="vertex-export"],main>aside button[title*="vertex" i],main>aside button[title*="excel" i]{display:none!important}
+</style><style>
+#nvv-place-results{position:absolute!important;left:0!important;right:0!important;top:calc(100% + 6px)!important;z-index:5000!important;background:#fff!important;border-radius:12px!important;box-shadow:0 5px 18px #0003!important;max-height:260px!important;overflow-y:auto!important;overflow-x:hidden!important;padding:4px!important}
+#nvv-place-results:empty{display:none!important}
+#nvv-place-results button,#nvv-place-results .result,#nvv-place-results [role="option"]{display:block!important;width:100%!important;min-height:48px!important;height:auto!important;padding:9px 10px!important;margin:0!important;border:0!important;border-bottom:1px solid #e6ecef!important;background:#fff!important;text-align:left!important;line-height:1.25!important;font-size:15px!important;white-space:normal!important;overflow:hidden!important;display:-webkit-box!important;-webkit-line-clamp:2!important;-webkit-box-orient:vertical!important}
+#nvv-place-results button:last-child,#nvv-place-results .result:last-child{border-bottom:0!important}
+#nvv-place-search{position:relative!important}
 </style></head><body>
 <header><div class="brand"><img class="nvv-logo" src="nvv-logo.png" alt="NVV Prasad — Transmission Line Survey and Engineering Services"><div><strong>NVV Field maps</strong><small>Transmission line field workspace</small></div></div><span id="offline">Preparing offline use…</span><button id="help">Help</button></header>
 <main><aside><div class="section-title">PROJECT <span>01</span></div><input id="project" aria-label="Project name" value="Untitled survey"><label class="primary file">＋ Import KML / KMZ<input id="import" type="file" accept=".kml,.kmz" hidden></label><div class="row"><button id="demo">Try sample</button><button id="backup">Backup</button><label class="file button">Restore<input id="restore" type="file" accept=".json" hidden></label></div><p class="muted">Files stay on this device. Export a backup before clearing browser data.</p><div class="section-title">SURVEY LAYERS <span id="count">0</span></div><div id="features"></div><div class="row"><button id="newpoint">＋ Tower</button><button id="newline">＋ Route</button></div><hr><div class="section-title">EXPORT COORDINATES</div><label>Datum<input value="WGS 84" disabled></label><div class="row"><label>UTM zone<input id="zone" type="number" min="1" max="60" value="44"></label><label>Hemisphere<select id="hemisphere"><option value="N">North</option><option value="S">South</option></select></label></div><p class="muted">Confirm the zone for your project. DXF uses metres; chainage uses horizontal UTM grid distance.</p><div class="exports"><button id="kml">↓ KML</button><button id="dxf">↓ DXF</button><button id="excel">↓ Excel vertex report</button></div><p id="saved" class="muted">No survey loaded</p></aside>
@@ -165,4 +171,13 @@ function hideExportSection(){
  }
 }
 hideExportSection();setTimeout(hideExportSection,500);setTimeout(hideExportSection,1500);
+})();</script><script>(function(){
+function cleanSearch(){
+ const box=document.getElementById('nvv-place-results');if(!box)return;
+ const items=[...box.children];items.slice(5).forEach(x=>x.style.display='none');
+ items.slice(0,5).forEach(x=>{x.style.minHeight='48px';x.style.height='auto';x.style.lineHeight='1.25';x.addEventListener('click',()=>{setTimeout(()=>{box.innerHTML='';box.style.display='none'},20)},{once:true})});
+ if(items.length)box.style.display='block';
+}
+const box=document.getElementById('nvv-place-results');if(box)new MutationObserver(cleanSearch).observe(box,{childList:true,subtree:true});
+document.addEventListener('click',e=>{const box=document.getElementById('nvv-place-results');if(box&&!e.target.closest('#nvv-place-search')&&!e.target.closest('#nvv-place-results')){box.innerHTML='';box.style.display='none'}});
 })();</script></body></html>
