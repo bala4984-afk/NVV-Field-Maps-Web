@@ -384,4 +384,45 @@ window.nvvOpenFeatureEditor=openEditor;
 #editor.nvv-mobile-editor.nvv-open{display:block!important;position:fixed!important;left:10px!important;right:10px!important;bottom:12px!important;top:auto!important;z-index:5000!important;max-height:58vh!important;overflow:auto!important;background:#fff!important;border-radius:18px!important;padding:16px!important;box-shadow:0 8px 32px #0005!important}
 #editor .nvv-editor-close{position:sticky;float:right;top:0;z-index:2;width:42px;height:42px;border-radius:12px;font-size:26px}
 #editor .tablewrap{overflow:auto}#editor table{min-width:620px}
-}</style></body></html>
+}</style><script>(function(){
+/* Unified map feature selection for Point / LineString / Polygon. */
+let selLayer=null,bar=null;
+function featureForLayer(l){
+ const ll=l.getLatLng?l.getLatLng():null, lls=l.getLatLngs?l.getLatLngs():null;
+ let best=null,score=1e9;
+ for(const f of state.features||[]){
+  if(!f.points?.length)continue;
+  if(ll&&f.type==='Point'){const d=Math.abs(f.points[0].lat-ll.lat)+Math.abs(f.points[0].lon-ll.lng);if(d<score){score=d;best=f}}
+  else if(lls&&f.type!=='Point'){
+   const p=f.points[0],a=Array.isArray(lls[0])?(Array.isArray(lls[0][0])?lls[0][0]:lls[0]):lls[0];
+   if(p&&a){const d=Math.abs(p.lat-a.lat)+Math.abs(p.lon-a.lng);if(d<score){score=d;best=f}}
+  }
+ }
+ return score<0.001?best:null;
+}
+function showBar(f){
+ if(!bar){bar=document.createElement('div');bar.id='nvv-selection-bar';bar.innerHTML='<b id="nvv-selected-name"></b><button type="button" id="nvv-selected-edit">Edit</button><button type="button" id="nvv-selected-export">Export</button><button type="button" id="nvv-selected-close">×</button>';document.body.appendChild(bar);
+  bar.querySelector('#nvv-selected-edit').onclick=()=>window.nvvOpenFeatureEditor?.();
+  bar.querySelector('#nvv-selected-export').onclick=()=>document.getElementById('nvv-export')?.click();
+  bar.querySelector('#nvv-selected-close').onclick=clearSel;
+ }
+ bar.querySelector('#nvv-selected-name').textContent=f.name||f.type;bar.hidden=false;
+}
+function selectF(f,l){
+ if(!f)return; if(typeof select==='function')select(f.id); else {selected=f.id;if(typeof render==='function')render()}
+ selLayer=l;showBar(f);
+ try{if(l.setStyle)l.setStyle({weight:6,opacity:1})}catch(_){}
+}
+function clearSel(){bar&&(bar.hidden=true);selLayer=null;selected=null;if(typeof render==='function')render()}
+function wire(){
+ map.eachLayer(l=>{if(l.__nvvSelectable)return;if(!(l instanceof L.Marker||l instanceof L.CircleMarker||l instanceof L.Polyline||l instanceof L.Polygon))return;
+  const f=featureForLayer(l);if(!f)return;l.__nvvSelectable=true;l.on('click',e=>{if(e.originalEvent)L.DomEvent.stopPropagation(e.originalEvent);selectF(f,l)});
+ });
+}
+map.on('layeradd',()=>setTimeout(wire,0));setTimeout(wire,100);setTimeout(wire,1000);
+})();</script>
+<style>
+#nvv-selection-bar{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:4900;background:#fff;padding:8px 10px;border-radius:14px;box-shadow:0 5px 22px #0004;display:flex;align-items:center;gap:8px;max-width:92vw}
+#nvv-selection-bar[hidden]{display:none!important}#nvv-selection-bar b{max-width:42vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#nvv-selection-bar button{min-height:38px;border-radius:10px}
+</style></body></html>
