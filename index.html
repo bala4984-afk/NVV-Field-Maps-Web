@@ -513,4 +513,23 @@ function addHitPaths(){
  });
 }
 map.on('layeradd',()=>setTimeout(addHitPaths,0));setTimeout(addHitPaths,800);
+})();</script><script>(function(){
+/* Auto-fit the map after a project/survey import finishes. */
+function fitAllFeatures(){
+ const pts=[];
+ for(const f of state.features||[])for(const p of f.points||[])if(Number.isFinite(+p.lat)&&Number.isFinite(+p.lon))pts.push([+p.lat,+p.lon]);
+ if(!pts.length)return false;
+ if(pts.length===1)map.setView(pts[0],18);
+ else map.fitBounds(L.latLngBounds(pts),{padding:[36,36],maxZoom:18});
+ return true;
+}
+function watchImport(){
+ const before=(state.features||[]).length;let tries=0;
+ const t=setInterval(()=>{tries++;const now=(state.features||[]).length;if(now&&now!==before){clearInterval(t);setTimeout(()=>{map.invalidateSize();fitAllFeatures()},120)}
+ else if(tries>40)clearInterval(t)},150);
+}
+document.getElementById('nvv-import')?.addEventListener('click',watchImport);
+document.getElementById('import')?.addEventListener('click',watchImport);
+document.addEventListener('change',e=>{if(e.target?.type==='file')watchImport()},true);
+window.nvvFitSurvey=fitAllFeatures;
 })();</script></body></html>
