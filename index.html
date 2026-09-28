@@ -16,6 +16,8 @@
 #draw-tray{display:flex;flex-direction:column;gap:4px;max-height:46vh;overflow:auto}
 #draw-tray[hidden]{display:none!important}
 #draw-tray-toggle{margin-top:5px}
+</style><style>
+@media(max-width:800px){#gps.nvv-gps-below-n{position:fixed!important;right:17px!important;top:510px!important;z-index:2050!important;width:54px!important;height:54px!important}.survey-tools{right:10px!important}.survey-tools #tools-tray,.survey-tools #draw-tray{max-height:42vh!important;overflow:auto!important}}
 </style></head><body>
 <header><div class="brand"><img class="nvv-logo" src="nvv-logo.png" alt="NVV Prasad — Transmission Line Survey and Engineering Services"><div><strong>NVV Field maps</strong><small>Transmission line field workspace</small></div></div><span id="offline">Preparing offline use…</span><button id="help">Help</button></header>
 <main><aside><div class="section-title">PROJECT <span>01</span></div><input id="project" aria-label="Project name" value="Untitled survey"><label class="primary file">＋ Import KML / KMZ<input id="import" type="file" accept=".kml,.kmz" hidden></label><div class="row"><button id="demo">Try sample</button><button id="backup">Backup</button><label class="file button">Restore<input id="restore" type="file" accept=".json" hidden></label></div><p class="muted">Files stay on this device. Export a backup before clearing browser data.</p><div class="section-title">SURVEY LAYERS <span id="count">0</span></div><div id="features"></div><div class="row"><button id="newpoint">＋ Tower</button><button id="newline">＋ Route</button></div><hr><div class="section-title">EXPORT COORDINATES</div><label>Datum<input value="WGS 84" disabled></label><div class="row"><label>UTM zone<input id="zone" type="number" min="1" max="60" value="44"></label><label>Hemisphere<select id="hemisphere"><option value="N">North</option><option value="S">South</option></select></label></div><p class="muted">Confirm the zone for your project. DXF uses metres; chainage uses horizontal UTM grid distance.</p><div class="exports"><button id="kml">↓ KML</button><button id="dxf">↓ DXF</button><button id="excel">↓ Excel vertex report</button></div><p id="saved" class="muted">No survey loaded</p></aside>
@@ -34,36 +36,52 @@ form.onsubmit=async e=>{e.preventDefault();const q=input.value.trim();if(!q)retu
 })();</script><script>(function(){const click=(sel)=>{const e=document.querySelector(sel);if(e)e.click()};document.getElementById('nvv-import')?.addEventListener('click',()=>click('#import'));document.getElementById('nvv-redo')?.addEventListener('click',()=>click('[data-action="redo"],#redo,.redo'));document.getElementById('nvv-export')?.addEventListener('click',()=>click('[data-action="export"],#export,.export'));document.getElementById('nvv-projects')?.addEventListener('click',()=>{const self=document.getElementById('nvv-projects');const a=[...document.querySelectorAll('[data-action="projects"],#projects,.projects,[aria-controls*="project" i],[title*="Project" i]')].find(e=>e!==self&&!self?.contains(e));if(a)a.click();else{const tray=document.querySelector('#projects-tray,#project-tray,[data-tray-name="projects"],.projects-tray');if(tray){tray.hidden=false;tray.classList.add('open','active','show')}}});})();</script><script>(function(){
 function pos(){const d=document.getElementById('dialog');if(!d||!d.open||!window.__nvvTapPoint)return;d.classList.add('nvv-map-save');const r=d.getBoundingClientRect(),a=window.__nvvTapPoint,g=22;let l=a.x+g,t=a.y-r.height/2;if(l+r.width>innerWidth-8)l=a.x-r.width-g;l=Math.max(8,Math.min(l,innerWidth-r.width-8));t=Math.max(8,Math.min(t,innerHeight-r.height-8));d.style.left=l+'px';d.style.top=t+'px'}
 try{document.getElementById('map')?.addEventListener('pointerup',e=>{window.__nvvTapPoint={x:e.clientX,y:e.clientY};setTimeout(pos,0)},true);const d=document.getElementById('dialog');if(d)new MutationObserver(pos).observe(d,{attributes:true,attributeFilter:['open']});addEventListener('resize',pos)}catch(e){}
-function gps(){try{const g=document.getElementById('gps');if(!g)return;const n=document.querySelector('.leaflet-control-rotate');if(n&&g.parentElement!==n){g.classList.add('nvv-gps-under-n');n.appendChild(g)}}catch(e){}}
+function gps(){try{const g=document.getElementById('gps');if(!g)return;g.classList.remove('nvv-gps-under-n');g.classList.add('nvv-gps-below-n')}catch(e){}}
 function split(){try{const tools=document.querySelector('.survey-tools'),drawer=document.getElementById('tools-tray');if(!tools||!drawer||document.getElementById('draw-tray'))return;const draw=document.createElement('div');draw.id='draw-tray';draw.hidden=true;[...drawer.children].forEach(el=>{const t=(el.title||el.getAttribute?.('aria-label')||'').toLowerCase();if(/add point|draw line|draw polyline|finish polyline|cancel drawing|delete selected layer/.test(t))draw.appendChild(el)});const b=document.createElement('button');b.type='button';b.id='draw-tray-toggle';b.textContent='✎';b.title='Point / Line / Polyline';b.setAttribute('aria-label','Point line polyline drawing tools');b.onclick=()=>{draw.hidden=!draw.hidden;drawer.hidden=true;const m=tools.querySelector('button[aria-controls="tools-tray"]');if(m)m.setAttribute('aria-expanded','false')};const m=tools.querySelector('button[aria-controls="tools-tray"]');if(m){m.title='Map / edit tools';m.addEventListener('click',()=>draw.hidden=true)}tools.append(b,draw)}catch(e){}}
 setTimeout(()=>{gps();split()},300);setTimeout(()=>{gps();split()},1200)
 })();</script><script>(function(){
-/* Mobile dialog fixes: simple delete confirmation + compact map-save forms. */
-const baseModal=window.modal;
-if(typeof baseModal==='function'){
- window.modal=function(title,fields,save){
-  if(/^Delete project:/i.test(title)){
-   const name=title.replace(/^Delete project:\s*/i,'');
-   if(confirm('Delete project “'+name+'”?')) {
-    try{save({confirm:'DELETE'})}catch(e){toast(e.message||String(e))}
-   }
+/* Reliable mobile dialog behaviour, independent of the hosted modal implementation. */
+let handlingDelete=false;
+function tuneDialog(){
+ const d=document.querySelector('dialog[open],#dialog[open]'); if(!d)return;
+ const title=(d.querySelector('#dialog-title,h2')?.textContent||'').trim();
+ if(/^Delete project:/i.test(title)&&!handlingDelete){
+   handlingDelete=true; const input=d.querySelector('input[name="confirm"],input[type="text"]');
+   const project=title.replace(/^Delete project:\s*/i,'').trim();
+   try{d.close()}catch(e){}
+   setTimeout(()=>{const ok=confirm('Delete project “'+project+'”?');if(ok&&input){input.value='DELETE';const f=input.closest('form');if(f)f.requestSubmit()}handlingDelete=false},30);
    return;
-  }
-  if(title==='Add point'){
-   const lat=fields.find(f=>f.id==='lat')?.value,lon=fields.find(f=>f.id==='lon')?.value,alt=fields.find(f=>f.id==='alt')?.value;
-   const n=(state.features.filter(f=>f.type==='Point').length+1);
-   return baseModal(title,[{id:'label',label:'Point name',value:'Point '+n,required:true}],v=>save({label:v.label,lat,lon,alt}));
-  }
-  return baseModal(title,fields,save);
- };
-}
-const d=document.getElementById('dialog');
-if(d)new MutationObserver(()=>{
- if(!d.open)return;
- const t=document.getElementById('dialog-title')?.textContent||'';
- if(/^Delete project:/i.test(t)){
-  const input=d.querySelector('input[name="confirm"]');
-  if(input){const name=t.replace(/^Delete project:\s*/i,'');d.close();setTimeout(()=>{if(confirm('Delete project “'+name+'”?')){input.value='DELETE';document.getElementById('form')?.requestSubmit()}},0)}
  }
-}).observe(d,{attributes:true,attributeFilter:['open']});
+ if(/^Add point$/i.test(title)){
+   const labels=[...d.querySelectorAll('#fields>label,label')];
+   const name=d.querySelector('input[name="label"],input[name="name"]');
+   if(name&&!name.value)name.value='Point '+((window.state?.features||[]).filter(f=>f.type==='Point').length+1);
+   labels.forEach(l=>{const x=l.querySelector('input,select');if(x&&['lat','lon','alt'].includes(x.name))l.style.display='none'});
+   const pos=[...d.querySelectorAll('*')].find(e=>e.childElementCount===0&&e.textContent?.trim()==='Position')?.parentElement;
+   if(pos)pos.style.display='none';
+ }
+}
+new MutationObserver(tuneDialog).observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['open']});
+document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(/^delete project/i.test((b.textContent||b.title||'').trim()))setTimeout(tuneDialog,0)},true);
+
+/* My Projects: open the real Layers/Projects tray directly. */
+document.getElementById('nvv-projects')?.addEventListener('click',e=>{
+ e.stopImmediatePropagation();
+ const tray=document.getElementById('layers-tray')||document.querySelector('aside');
+ if(tray){tray.hidden=false;tray.classList.add('open','active','show');map.invalidateSize()}
+},true);
+
+/* Area drawing: 3+ map taps, then save as a closed Polygon. */
+let area=false,ap=[],preview;
+function ensureAreaButtons(){
+ const draw=document.getElementById('draw-tray')||document.getElementById('tools-tray'); if(!draw||document.getElementById('nvv-area'))return;
+ preview=L.layerGroup().addTo(map);
+ const a=document.createElement('button');a.id='nvv-area';a.type='button';a.textContent='▱';a.title='Draw area';a.setAttribute('aria-label','Draw area');
+ const done=document.createElement('button');done.id='nvv-area-done';done.type='button';done.textContent='✓';done.title='Finish area';done.hidden=true;
+ a.onclick=()=>{area=true;ap=[];preview.clearLayers();done.hidden=false;toast('Tap at least 3 boundary points, then ✓ to save area.')};
+ done.onclick=()=>{if(ap.length<3)return toast('Choose at least 3 boundary points.');const pts=ap.map(p=>({...p}));pts.push({...pts[0]});area=false;done.hidden=true;preview.clearLayers();modal('Save area',[{id:'name',label:'Area name',value:'Area',required:true}],v=>{if(!v.name.trim())throw Error('Enter an area name.');commit(()=>{const f={id:uid(),name:v.name.trim(),type:'Polygon',group:'active',points:pts,ringLengths:[pts.length]};state.features.push(f);selected=f.id})})};
+ draw.append(a,done);
+}
+setTimeout(ensureAreaButtons,400);setTimeout(ensureAreaButtons,1400);
+map.on('click',e=>{if(!area)return;ap.push({lat:e.latlng.lat,lon:((e.latlng.lng+180)%360+360)%360-180,alt:null});preview.clearLayers();if(ap.length>1)L.polyline(ap.map(p=>[p.lat,p.lon]),{color:'#167e97',weight:3,interactive:false}).addTo(preview);ap.forEach(p=>L.circleMarker([p.lat,p.lon],{radius:4,interactive:false}).addTo(preview))});
 })();</script></body></html>
