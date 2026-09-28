@@ -190,4 +190,32 @@ function fixPlaceDropdown(){
  [...box.children].forEach((el,i)=>{el.style.cssText+=';display:block!important;position:relative!important;float:none!important;width:100%!important;height:auto!important;min-height:52px!important;max-height:64px!important;margin:0!important;padding:8px 10px!important;line-height:22px!important;font-size:16px!important;white-space:normal!important;overflow:hidden!important;border-bottom:1px solid #e4e8ea!important;box-sizing:border-box!important;';if(i>=5)el.style.display='none'});
 }
 const obs=new MutationObserver(()=>setTimeout(fixPlaceDropdown,0));obs.observe(document.body,{childList:true,subtree:true});document.addEventListener('input',e=>{if(e.target.matches('input[placeholder="Search place"]'))setTimeout(fixPlaceDropdown,150)},true);setTimeout(fixPlaceDropdown,500);
+})();</script><script>(function(){
+/* Rebuild place suggestions as exactly one place per row. */
+const input=document.querySelector('input[placeholder="Search place"]');if(!input)return;
+let list=document.getElementById('nvv-clean-place-list');
+if(!list){list=document.createElement('div');list.id='nvv-clean-place-list';input.parentElement.appendChild(list)}
+Object.assign(list.style,{position:'absolute',left:'0',right:'0',top:'100%',zIndex:'9000',background:'#fff',borderRadius:'12px',boxShadow:'0 5px 18px #0003',overflow:'hidden',display:'none'});
+let timer=0,seq=0;
+async function search(){
+ const q=input.value.trim();if(q.length<2){list.style.display='none';list.innerHTML='';return}
+ const my=++seq;
+ try{
+  const res=await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&addressdetails=1&q='+encodeURIComponent(q),{headers:{'Accept':'application/json'}});
+  const data=await res.json();if(my!==seq)return;
+  list.innerHTML='';
+  data.slice(0,5).forEach(x=>{
+   const b=document.createElement('button');b.type='button';b.textContent=x.display_name;
+   b.style.cssText='display:block;width:100%;height:auto;min-height:54px;max-height:70px;padding:8px 10px;margin:0;border:0;border-bottom:1px solid #e3e8eb;background:#fff;text-align:left;font-size:15px;line-height:20px;white-space:normal;overflow:hidden;box-sizing:border-box;';
+   b.onclick=()=>{input.value=(x.display_name||'').split(',').slice(0,2).join(', ');list.style.display='none';list.innerHTML='';map.setView([+x.lat,+x.lon],15)};
+   list.appendChild(b);
+  });
+  list.style.display=data.length?'block':'none';
+ }catch(e){list.style.display='none'}
+}
+input.addEventListener('input',()=>{clearTimeout(timer);timer=setTimeout(search,300)},true);
+input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();search()}},true);
+document.addEventListener('click',e=>{if(e.target!==input&&!list.contains(e.target))list.style.display='none'},true);
+/* Hide legacy suggestion boxes whenever they appear. */
+new MutationObserver(()=>{[...document.querySelectorAll('div,ul')].forEach(el=>{if(el===list||list.contains(el))return;const r=el.getBoundingClientRect(),ir=input.getBoundingClientRect();if(r.width>200&&r.left>=ir.left-10&&r.left<=ir.right&&r.top>=ir.bottom-5&&r.top<ir.bottom+30&&el.children.length>1)el.style.display='none'})}).observe(document.body,{childList:true,subtree:true});
 })();</script></body></html>
