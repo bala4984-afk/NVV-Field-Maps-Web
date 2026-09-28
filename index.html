@@ -78,7 +78,8 @@ class FeatureStyle {
  static icon(v={}){
   const s=FeatureStyle.get(v);
   if(window.L&&typeof L.divIcon==='function'){
-   return L.divIcon({className:'nvv-feature-marker',html:'<span style="display:block;width:14px;height:14px;border-radius:50%;background:'+(s.fillColor||s.color)+';border:2px solid '+s.color+'"></span>',iconSize:[18,18],iconAnchor:[9,9]});
+   const label=String((v&&typeof v==='object'&&(v.label||v.name||v.title||v.text))||'').replace(/[<>&"']/g,m=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[m]));
+   return L.divIcon({className:'nvv-feature-marker',html:'<span style="display:flex;align-items:center;gap:5px;white-space:nowrap"><span style="display:block;flex:none;width:14px;height:14px;border-radius:50%;background:'+(s.fillColor||s.color)+';border:2px solid '+s.color+'"></span>'+(label?'<span style="font:600 12px system-ui;color:#083b47;text-shadow:0 1px 2px #fff,0 0 2px #fff">'+label+'</span>':'')+'</span>',iconSize:null,iconAnchor:[9,9]});
   }
   return s.icon||null;
  }
