@@ -260,4 +260,29 @@ new MutationObserver(()=>{[...document.querySelectorAll('div,ul')].forEach(el=>{
  }
  input.addEventListener('input',()=>{clearTimeout(timer);timer=setTimeout(liveSearch,220)},true);
 })();
+</script><script>
+(function(){
+ const old=document.querySelector('.nvv-place-search'); if(!old)return;
+ const wrap=old.cloneNode(false); wrap.className='nvv-place-search';
+ const inp=document.createElement('input'); inp.type='search'; inp.placeholder='Search place'; inp.autocomplete='off'; inp.spellcheck=false;
+ const list=document.createElement('div'); list.className='nvv-place-results'; list.hidden=true;
+ wrap.append(inp,list); old.replaceWith(wrap);
+ Object.assign(wrap.style,{position:'relative'});
+ Object.assign(list.style,{position:'absolute',left:'0',right:'0',top:'calc(100% + 6px)',zIndex:'10000',background:'#fff',borderRadius:'12px',boxShadow:'0 5px 18px #0003',overflow:'hidden',maxHeight:'270px'});
+ let timer,seq=0,mark;
+ async function go(){
+  const q=inp.value.trim(),s=++seq;if(q.length<2){list.hidden=true;list.replaceChildren();return}
+  try{
+   const res=await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&countrycodes=in&q='+encodeURIComponent(q));
+   const data=await res.json();if(s!==seq)return;list.replaceChildren();
+   data.slice(0,5).forEach(x=>{const b=document.createElement('button');b.type='button';b.textContent=x.display_name;b.title=x.display_name;
+    b.style.cssText='display:block!important;width:100%!important;height:50px!important;min-height:50px!important;max-height:50px!important;padding:0 12px!important;margin:0!important;border:0!important;border-bottom:1px solid #e4e8ea!important;background:#fff!important;text-align:left!important;font-size:16px!important;line-height:50px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;box-sizing:border-box!important;';
+    b.onclick=()=>{const ll=[+x.lat,+x.lon];inp.value=(x.display_name||'').split(',')[0];list.hidden=true;map.setView(ll,15);if(mark)mark.remove();mark=L.circleMarker(ll,{radius:7,weight:3}).addTo(map)};list.appendChild(b)});
+   list.hidden=!data.length;
+  }catch(e){list.hidden=true}
+ }
+ inp.addEventListener('input',()=>{clearTimeout(timer);timer=setTimeout(go,250)});
+ inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();clearTimeout(timer);go()}});
+ document.addEventListener('pointerdown',e=>{if(!wrap.contains(e.target))list.hidden=true});
+})();
 </script></body></html>
