@@ -151,4 +151,18 @@ function openOnlyProjects(){
  shade.appendChild(box);document.body.appendChild(shade);shade.onclick=e=>{if(e.target===shade)shade.remove()};
 }
 const p=document.getElementById('nvv-projects');if(p){const np=p.cloneNode(true);p.replaceWith(np);np.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();openOnlyProjects()},true)}
+})();</script><script>(function(){
+function hideExportSection(){
+ const a=document.querySelector('main>aside');if(!a)return;
+ const kids=[...a.children];let hide=false;
+ for(const n of kids){
+  const t=(n.textContent||'').trim();
+  if(n.classList.contains('section-title')&&/^EXPORT COORDINATES\b/i.test(t)){hide=true;n.style.display='none';continue}
+  if(hide){
+   if(n.classList.contains('section-title')){hide=false;continue}
+   n.style.display='none';
+  }
+ }
+}
+hideExportSection();setTimeout(hideExportSection,500);setTimeout(hideExportSection,1500);
 })();</script></body></html>
