@@ -111,4 +111,42 @@ function openProjects(){
  copy.forEach((el,i)=>{if(el.tagName==='INPUT')el.onchange=()=>{real[i]?.click();setTimeout(()=>{wrap.remove();openProjects()},60)}});
 }
 const pb=document.getElementById('nvv-projects');if(pb){pb.onclick=null;pb.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();openProjects()},true)}
+})();</script><script>(function(){
+/* Final mobile ownership: stop legacy GPS confirmation and separate Layers from My Projects. */
+const g=document.getElementById('gps');
+if(g){
+ const ng=g.cloneNode(true);g.replaceWith(ng);
+ let watch=null,marker=null,accuracy=null,last=null;
+ const clear=()=>{if(watch!==null){navigator.geolocation.clearWatch(watch);watch=null}if(marker)map.removeLayer(marker);if(accuracy)map.removeLayer(accuracy);marker=accuracy=last=null};
+ const draw=(p,center)=>{const lat=p.coords.latitude,lon=p.coords.longitude,acc=p.coords.accuracy;last={lat,lon,alt:Number.isFinite(p.coords.altitude)?p.coords.altitude:null,accuracy:acc};
+  if(!accuracy)accuracy=L.circle([lat,lon],{radius:acc,color:'#2878be',weight:1,fillOpacity:.08,interactive:false}).addTo(map);else accuracy.setLatLng([lat,lon]).setRadius(acc);
+  if(!marker){marker=L.circleMarker([lat,lon],{radius:8,color:'#fff',weight:3,fillColor:'#168bd2',fillOpacity:1}).addTo(map);
+   marker.on('click',()=>{if(!last)return;marker.bindPopup('<b>Accuracy ±'+Math.round(last.accuracy)+' m</b><br><button id="gps-save-only" type="button">Save</button>',{autoPan:false}).openPopup();setTimeout(()=>{const b=document.getElementById('gps-save-only');if(b)b.onclick=()=>{map.closePopup();const p={lat:last.lat,lon:last.lon,alt:last.alt,label:'GPS '+new Date().toLocaleTimeString()};commit(()=>{state.features.push({id:uid(),name:p.label,type:'Point',group:'active',points:[p]});selected=state.features.at(-1).id})}},0)})}
+  else marker.setLatLng([lat,lon]);if(center)map.setView([lat,lon],Math.max(18,map.getZoom()))};
+ ng.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();if(watch!==null){clear();toast('Location hidden.');return}navigator.geolocation.getCurrentPosition(p=>{draw(p,true);watch=navigator.geolocation.watchPosition(q=>draw(q,false),()=>{}, {enableHighAccuracy:true,maximumAge:0,timeout:20000})},e=>toast('Location unavailable: '+e.message),{enableHighAccuracy:true,maximumAge:0,timeout:20000})},true);
+}
+/* Build My Projects from project controls only; keep reference layers in Layers tray. */
+const aside=document.querySelector('main>aside');
+function classifyProjectNodes(){
+ if(!aside)return[];
+ const nodes=[...aside.children],out=[];let inProject=false;
+ for(const n of nodes){
+  const txt=(n.textContent||'').trim();
+  if(n.classList.contains('section-title')&&/^PROJECT\b/i.test(txt))inProject=true;
+  if(n.classList.contains('section-title')&&/^(EXPORT|COORDINATE|LAYER|REFERENCE|FOREST|MAP)/i.test(txt))inProject=false;
+  if(inProject)out.push(n);
+ }
+ return out;
+}
+const projectNodes=classifyProjectNodes();
+projectNodes.forEach(n=>n.style.display='none');
+function openOnlyProjects(){
+ document.getElementById('nvv-projects-sheet')?.remove();
+ const shade=document.createElement('div');shade.id='nvv-projects-sheet';shade.style.cssText='position:fixed;inset:0;background:#0006;z-index:6000;padding:18px;display:flex;align-items:flex-start;justify-content:center';
+ const box=document.createElement('div');box.style.cssText='margin-top:70px;background:#fff;border-radius:18px;width:min(520px,96vw);max-height:78vh;overflow:auto;padding:18px';
+ const hd=document.createElement('div');hd.style.cssText='display:flex;align-items:center;justify-content:space-between';hd.innerHTML='<h2>My Projects</h2>';const x=document.createElement('button');x.textContent='×';x.onclick=()=>shade.remove();hd.appendChild(x);box.appendChild(hd);
+ projectNodes.forEach(n=>{const cp=n.cloneNode(true);cp.style.display='';box.appendChild(cp)});
+ shade.appendChild(box);document.body.appendChild(shade);shade.onclick=e=>{if(e.target===shade)shade.remove()};
+}
+const p=document.getElementById('nvv-projects');if(p){const np=p.cloneNode(true);p.replaceWith(np);np.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();openOnlyProjects()},true)}
 })();</script></body></html>
