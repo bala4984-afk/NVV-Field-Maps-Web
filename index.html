@@ -54,8 +54,21 @@ class FeatureStyle {
    dashArray:null,radius:6,icon:null
   },v&&typeof v==='object'?v:{});
  }
+ static get(v={}){
+  if(v instanceof FeatureStyle)return v;
+  if(typeof v==='string'){
+   try{const saved=JSON.parse(localStorage.getItem('nvv-feature-style-'+v)||'null');if(saved)return new FeatureStyle(saved)}catch(_){}
+   return new FeatureStyle({kind:v});
+  }
+  return new FeatureStyle(v);
+ }
+ static set(k,v={}){
+  const s=FeatureStyle.get(v);
+  if(typeof k==='string')try{localStorage.setItem('nvv-feature-style-'+k,JSON.stringify(s))}catch(_){}
+  return s;
+ }
  static path(v={}){
-  const s=new FeatureStyle(v);
+  const s=FeatureStyle.get(v);
   return {color:s.color,weight:s.weight,opacity:s.opacity,fillColor:s.fillColor||s.color,fillOpacity:s.fillOpacity,dashArray:s.dashArray};
  }
  static point(v={}){
