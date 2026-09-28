@@ -425,4 +425,44 @@ map.on('layeradd',()=>setTimeout(wire,0));setTimeout(wire,100);setTimeout(wire,1
 #nvv-selection-bar{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:4900;background:#fff;padding:8px 10px;border-radius:14px;box-shadow:0 5px 22px #0004;display:flex;align-items:center;gap:8px;max-width:92vw}
 #nvv-selection-bar[hidden]{display:none!important}#nvv-selection-bar b{max-width:42vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #nvv-selection-bar button{min-height:38px;border-radius:10px}
-</style></body></html>
+</style><script>(function(){
+/* Make every saved feature selectable, including div-icon points, and give drawn routes Point-like named save. */
+function nearestPoint(latlng){
+ let best=null,dist=Infinity;
+ for(const f of state.features||[])if(f.type==='Point'&&f.points?.[0]){
+  const d=map.distance(latlng,[f.points[0].lat,f.points[0].lon]);if(d<dist){dist=d;best=f}
+ }
+ return dist<=35?best:null;
+}
+map.on('click',e=>{
+ if(e.originalEvent?.target?.closest?.('.leaflet-control,.nvv-place-search,#nvv-selection-bar'))return;
+ const f=nearestPoint(e.latlng);
+ if(f){if(typeof select==='function')select(f.id);else{selected=f.id;render?.()}setTimeout(()=>{window.nvvOpenFeatureEditor?.()},30)}
+});
+function wirePointLayers(){
+ map.eachLayer(l=>{if(l.__nvvPointSelect||!(l instanceof L.Marker||l instanceof L.CircleMarker))return;
+  const ll=l.getLatLng?.();if(!ll)return;const f=nearestPoint(ll);if(!f)return;l.__nvvPointSelect=true;
+  l.on('click',e=>{if(e.originalEvent)L.DomEvent.stopPropagation(e.originalEvent);if(typeof select==='function')select(f.id);else{selected=f.id;render?.()}});
+ });
+}
+map.on('layeradd',()=>setTimeout(wirePointLayers,0));setTimeout(wirePointLayers,500);
+
+/* Intercept the existing route Save so it asks a feature name before project choice/save. */
+document.addEventListener('click',e=>{
+ const b=e.target.closest('button');if(!b)return;
+ const txt=(b.textContent||'').trim().toLowerCase(),title=(b.title||'').toLowerCase();
+ if(!(txt==='save'||title==='save'))return;
+ if(b.id==='nvv-save-gps'||b.id==='gps-save-only'||b.id==='nvv-save-imported-line')return;
+ const f=typeof active==='function'?active():null;
+ if(f||!window.draw)return;
+ const pts=(window.draw.points||window.draw.vertices||window.draw.latlngs);
+ if(!Array.isArray(pts)||pts.length<2)return;
+ e.preventDefault();e.stopImmediatePropagation();
+ modal('Save line',[{id:'name',label:'Line name',value:'Line',required:true}],v=>{
+  const name=v.name.trim();if(!name)throw Error('Enter a line name.');
+  const pp=pts.map((p,i)=>({lat:p.lat??p[0],lon:p.lon??p.lng??p[1],alt:p.alt??null,label:p.label||('V'+(i+1))}));
+  commit(()=>{const nf={id:uid(),name,type:'LineString',group:'active',points:pp};state.features.push(nf);selected=nf.id});
+  setTimeout(()=>window.nvvOpenFeatureEditor?.(),60);
+ });
+},true);
+})();</script></body></html>
