@@ -487,4 +487,30 @@ if(close){close.onclick=()=>{
  snap=null;snapId=null;ed.classList.remove('nvv-open');if(typeof toast==='function')toast('Changes cancelled.');
 }}
 })();</script>
-<style>@media(max-width:800px){#editor .nvv-editor-save{font-weight:700;min-width:74px}}</style></body></html>
+<style>@media(max-width:800px){#editor .nvv-editor-save{font-weight:700;min-width:74px}}</style><script>(function(){
+/* Consistent select/edit/export UX for saved Line, Polyline and Area. */
+const hi=L.layerGroup().addTo(map);
+function selectedFeature(){return typeof active==='function'?active():(state.features||[]).find(f=>f.id===selected)}
+function highlight(){
+ hi.clearLayers();const f=selectedFeature();if(!f||!f.points?.length)return;
+ const pts=f.points.map(p=>[p.lat,p.lon]);
+ if(f.type==='LineString'){
+  L.polyline(pts,{color:'#ff9800',weight:8,opacity:.32,interactive:false}).addTo(hi);
+  L.polyline(pts,{color:'#ff9800',weight:4,opacity:1,interactive:false,dashArray:'10 5'}).addTo(hi);
+ }else if(f.type==='Polygon'){
+  L.polygon(pts,{color:'#ff9800',weight:4,opacity:1,fillColor:'#ff9800',fillOpacity:.12,interactive:false,dashArray:'10 5'}).addTo(hi);
+ }
+}
+const rr=window.render;if(typeof rr==='function')window.render=function(){rr();setTimeout(highlight,0)};
+map.on('click',()=>setTimeout(highlight,30));
+document.addEventListener('click',e=>{if(e.target.closest('#nvv-selection-bar,#editor'))setTimeout(highlight,30)});
+setTimeout(highlight,500);
+
+/* Larger invisible hit paths make field selection easier without changing the visible survey geometry. */
+function addHitPaths(){
+ map.eachLayer(l=>{if(l.__nvvHit||!(l instanceof L.Polyline)||l instanceof L.Polygon)return;l.__nvvHit=true;
+  try{const hit=L.polyline(l.getLatLngs(),{color:'#000',weight:18,opacity:0,interactive:true}).addTo(map);hit.on('click',e=>{L.DomEvent.stopPropagation(e.originalEvent);l.fire('click',e)})}catch(_){}
+ });
+}
+map.on('layeradd',()=>setTimeout(addHitPaths,0));setTimeout(addHitPaths,800);
+})();</script></body></html>
