@@ -549,4 +549,48 @@ input.addEventListener('change',()=>{
 const i=document.getElementById('import');if(!i)return;
 i.setAttribute('accept','.kml,.kmz,application/vnd.google-earth.kml+xml,application/vnd.google-earth.kmz,application/xml,text/xml,application/zip,application/octet-stream');
 document.getElementById('nvv-import')?.addEventListener('click',()=>{i.value='';setTimeout(()=>i.click(),0)});
+})();</script><script>(function(){
+/* Self-contained KML/KMZ import handler, based on the original working app importer. */
+const inp=document.getElementById('import');if(!inp)return;
+async function nvvImport(file){
+ if(file.size>30*1024*1024)throw Error(file.name+': choose a file smaller than 30 MB.');
+ let texts=[];
+ if(file.name.toLowerCase().endsWith('.kmz')){
+  if(!window.JSZip)throw Error('KMZ reader is not loaded.');
+  const zip=await JSZip.loadAsync(await file.arrayBuffer());
+  const es=Object.values(zip.files).filter(x=>!x.dir&&x.name.toLowerCase().endsWith('.kml'));
+  if(!es.length)throw Error('KMZ contains no KML.');
+  for(const e of es)texts.push([await e.async('string'),e.name]);
+ }else texts=[[await file.text(),file.name]];
+ const imported=[];
+ for(const [text,name] of texts){
+  const doc=new DOMParser().parseFromString(text,'application/xml');
+  if(doc.getElementsByTagName('parsererror').length)throw Error('Invalid KML document.');
+  const all=(el,n)=>Array.from(el.getElementsByTagNameNS('*',n));
+  for(const pm of all(doc,'Placemark')){
+   const nm=all(pm,'name')[0]?.textContent||name;
+   const geoms=[...pm.getElementsByTagName('*')].filter(x=>['Point','LineString','Polygon'].includes(x.localName));
+   geoms.forEach((g,ix)=>{
+    const nodes=g.localName==='Polygon'?[...all(g,'outerBoundaryIs'),...all(g,'innerBoundaryIs')].map(x=>all(x,'coordinates')[0]):[all(g,'coordinates')[0]];
+    const ringLengths=nodes.map(n=>(n?.textContent?.trim()||'').split(/\s+/).filter(Boolean).length);
+    const raw=nodes.map(n=>n?.textContent?.trim()||'').join(' ').trim();if(!raw)return;
+    const points=raw.split(/\s+/).map(t=>{const a=t.split(',');return {lon:+a[0],lat:+a[1],alt:a[2]!==undefined&&a[2]!==''?+a[2]:null}}).filter(p=>Number.isFinite(p.lat)&&Number.isFinite(p.lon));
+    if(!points.length)return;
+    imported.push({id:uid(),name:geoms.length>1?nm+' ('+(ix+1)+')':nm,type:g.localName,group:'active',points,...(g.localName==='Polygon'?{ringLengths}:{})});
+   });
+  }
+ }
+ if(!imported.length)throw Error('No points, lines or areas found in this KML/KMZ.');
+ const projectName=file.name.replace(/\.(kmz|kml)$/i,'');const projectId=uid();
+ imported.forEach(f=>Object.assign(f,{projectId,projectName,imported:true,source:file.name}));
+ commit(()=>{state.features.push(...imported);selected=imported[0].id;if(state.name==='Untitled survey')state.name=projectName});
+ setTimeout(()=>window.nvvFitSurvey?.(),120);
+ if(window.toast)toast('Opened '+projectName+' — '+imported.length+' layers.');
+}
+inp.addEventListener('change',async e=>{
+ const files=[...(e.target.files||[])];if(!files.length)return;
+ e.stopImmediatePropagation();
+ try{for(const f of files)await nvvImport(f)}catch(err){if(window.toast)toast(err.message);else alert(err.message)}
+ finally{inp.value=''}
+},true);
 })();</script></body></html>
