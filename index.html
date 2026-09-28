@@ -85,29 +85,17 @@ function ensureAreaButtons(){
 setTimeout(ensureAreaButtons,400);setTimeout(ensureAreaButtons,1400);
 map.on('click',e=>{if(!area)return;ap.push({lat:e.latlng.lat,lon:((e.latlng.lng+180)%360+360)%360-180,alt:null});preview.clearLayers();if(ap.length>1)L.polyline(ap.map(p=>[p.lat,p.lon]),{color:'#167e97',weight:3,interactive:false}).addTo(preview);ap.forEach(p=>L.circleMarker([p.lat,p.lon],{radius:4,interactive:false}).addTo(preview))});
 })();</script><script>(function(){
-/* Live GPS: keep marker anchored while zooming/panning, show accuracy, offer save. */
-let nvvWatch=null,nvvLast=null;
-function drawGPS(p,center){
+/* Live GPS: one tap ON, next tap OFF. No blocking confirmation. */
+let nvvWatch=null,nvvMarker=null,nvvAccuracy=null,nvvLast=null;
+function clearNvvGps(){if(nvvWatch!==null){navigator.geolocation.clearWatch(nvvWatch);nvvWatch=null}try{if(nvvMarker)map.removeLayer(nvvMarker);if(nvvAccuracy)map.removeLayer(nvvAccuracy)}catch(e){}nvvMarker=nvvAccuracy=nvvLast=null}
+function renderNvvGps(p,center){
  const lat=p.coords.latitude,lon=p.coords.longitude,acc=p.coords.accuracy;nvvLast={lat,lon,alt:Number.isFinite(p.coords.altitude)?p.coords.altitude:null,accuracy:acc};
- gpsLayer.clearLayers();
- L.circle([lat,lon],{radius:acc,color:'#2878be',weight:1,fillOpacity:.08,interactive:false}).addTo(gpsLayer);
- const m=L.circleMarker([lat,lon],{radius:8,color:'#fff',weight:3,fillColor:'#168bd2',fillOpacity:1}).addTo(gpsLayer);
- m.bindTooltip('Current location · ±'+Math.round(acc)+' m',{direction:'top'});
+ if(!nvvAccuracy)nvvAccuracy=L.circle([lat,lon],{radius:acc,color:'#2878be',weight:1,fillOpacity:.08,interactive:false}).addTo(map);else nvvAccuracy.setLatLng([lat,lon]).setRadius(acc);
+ if(!nvvMarker){nvvMarker=L.circleMarker([lat,lon],{radius:8,color:'#fff',weight:3,fillColor:'#168bd2',fillOpacity:1}).addTo(map);nvvMarker.on('click',()=>{if(!nvvLast)return;nvvMarker.bindPopup('<b>Accuracy ±'+Math.round(nvvLast.accuracy)+' m</b><br><button type="button" id="nvv-save-gps">Save</button>',{closeButton:true,autoPan:false}).openPopup();setTimeout(()=>{const b=document.getElementById('nvv-save-gps');if(b)b.onclick=()=>{map.closePopup();const p={lat:nvvLast.lat,lon:nvvLast.lon,alt:nvvLast.alt,label:'GPS '+new Date().toLocaleTimeString()};commit(()=>{const f={id:uid(),name:p.label,type:'Point',group:'active',points:[p]};state.features.push(f);selected=f.id})}},0)})}else nvvMarker.setLatLng([lat,lon]);
  if(center)map.setView([lat,lon],Math.max(map.getZoom(),18));
 }
 const gps=document.getElementById('gps');
-if(gps)gps.onclick=()=>{
- if(!navigator.geolocation)return toast('Location is unavailable on this device.');
- if(nvvWatch!==null){navigator.geolocation.clearWatch(nvvWatch);nvvWatch=null}
- navigator.geolocation.getCurrentPosition(p=>{
-   drawGPS(p,true);
-   if(confirm('Current location found (accuracy ±'+Math.round(p.coords.accuracy)+' m). Save this location as a point?')){
-    const pt={lat:p.coords.latitude,lon:p.coords.longitude,alt:Number.isFinite(p.coords.altitude)?p.coords.altitude:null};
-    modal('Add point',pointFields(pt),v=>{const point=toPoint(v);if(!point.label)point.label='GPS '+new Date().toLocaleTimeString();commit(()=>{const f={id:uid(),name:point.label,type:'Point',group:'active',points:[point]};state.features.push(f);selected=f.id})});
-   }
-   nvvWatch=navigator.geolocation.watchPosition(q=>drawGPS(q,false),()=>{}, {enableHighAccuracy:true,maximumAge:0,timeout:20000});
- },e=>toast('Location unavailable: '+e.message),{enableHighAccuracy:true,maximumAge:0,timeout:20000});
-};
+if(gps){gps.onclick=e=>{e.preventDefault();e.stopImmediatePropagation();if(nvvWatch!==null){clearNvvGps();toast('Location hidden.');return}if(!navigator.geolocation)return toast('Location is unavailable on this device.');navigator.geolocation.getCurrentPosition(p=>{renderNvvGps(p,true);nvvWatch=navigator.geolocation.watchPosition(q=>renderNvvGps(q,false),err=>toast('Location update: '+err.message),{enableHighAccuracy:true,maximumAge:0,timeout:20000})},e=>toast('Location unavailable: '+e.message),{enableHighAccuracy:true,maximumAge:0,timeout:20000})};}
 /* My Projects lives only behind the folder button, not in Layers. */
 function openProjects(){
  const panel=document.getElementById('loaded-projects');if(!panel)return toast('No projects loaded.');
