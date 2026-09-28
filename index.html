@@ -54,6 +54,16 @@ class FeatureStyle {
    dashArray:null,radius:6,icon:null
   },v&&typeof v==='object'?v:{});
  }
+ static path(v={}){
+  const s=new FeatureStyle(v);
+  return {color:s.color,weight:s.weight,opacity:s.opacity,fillColor:s.fillColor||s.color,fillOpacity:s.fillOpacity,dashArray:s.dashArray};
+ }
+ static point(v={}){
+  const s=new FeatureStyle(v);
+  return {radius:s.radius,color:s.color,weight:s.weight,opacity:s.opacity,fillColor:s.fillColor||s.color,fillOpacity:s.fillOpacity};
+ }
+ static polygon(v={}){return FeatureStyle.path(v)}
+ static line(v={}){return FeatureStyle.path(v)}
  clone(){return new FeatureStyle({...this})}
  toJSON(){return {...this}}
 }
