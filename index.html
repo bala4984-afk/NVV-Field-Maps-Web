@@ -465,4 +465,26 @@ document.addEventListener('click',e=>{
   setTimeout(()=>window.nvvOpenFeatureEditor?.(),60);
  });
 },true);
-})();</script></body></html>
+})();</script><script>(function(){
+/* Transactional editor: Save commits edits; Close restores the feature exactly as it was. */
+const ed=document.getElementById('editor');if(!ed)return;
+let snap=null,snapId=null;
+function clone(v){return JSON.parse(JSON.stringify(v))}
+function current(){return typeof active==='function'?active():null}
+function begin(){
+ const f=current();if(!f)return;
+ snap=clone(f);snapId=f.id;
+ let save=ed.querySelector('.nvv-editor-save');
+ if(!save){save=document.createElement('button');save.type='button';save.className='nvv-editor-save';save.textContent='Save';const head=ed.querySelector('.editor-head .row')||ed.querySelector('.editor-head')||ed;head.appendChild(save);
+  save.onclick=()=>{const f=current();if(!f||!snap)return;if(typeof commit==='function')commit(()=>{});snap=clone(f);snapId=f.id;ed.classList.remove('nvv-open');if(typeof toast==='function')toast('Changes saved.')}
+ }
+}
+const oldOpen=window.nvvOpenFeatureEditor;
+window.nvvOpenFeatureEditor=function(){oldOpen?.();setTimeout(begin,0)};
+const close=ed.querySelector('.nvv-editor-close');
+if(close){close.onclick=()=>{
+ if(snap&&snapId){const i=(state.features||[]).findIndex(f=>f.id===snapId);if(i>=0){state.features[i]=clone(snap);selected=snapId;if(typeof render==='function')render()}}
+ snap=null;snapId=null;ed.classList.remove('nvv-open');if(typeof toast==='function')toast('Changes cancelled.');
+}}
+})();</script>
+<style>@media(max-width:800px){#editor .nvv-editor-save{font-weight:700;min-width:74px}}</style></body></html>
