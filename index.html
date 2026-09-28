@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><base href="https://nvv-field-maps.bala-4984.chatgpt.site/"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#102b35"><title>NVV Field maps • Field workspace</title><link rel="manifest" href="manifest.json"><link rel="icon" href="nvv-logo.png"><link rel="stylesheet" href="vendor/leaflet.css"><link rel="stylesheet" href="style.css"><style>#empty{display:none!important}#editor{display:none!important}.nvv-place-search{position:absolute;z-index:1600;top:10px;left:52px;width:min(360px,calc(100% - 120px))}.nvv-place-search form{display:flex;background:#fff;border-radius:8px;box-shadow:0 1px 6px #0004;overflow:hidden}.nvv-place-search input{flex:1;min-width:0;border:0;padding:10px 12px}.nvv-place-search form button{border:0;border-left:1px solid #ddd;background:#fff;padding:0 12px}.nvv-place-results{margin-top:4px;background:#fff;border-radius:8px;box-shadow:0 2px 10px #0004;max-height:220px;overflow:auto}.nvv-place-results button{display:block;width:100%;border:0;border-bottom:1px solid #eee;background:#fff;padding:9px 11px;text-align:left}
+<!doctype html><html lang="en"><head><base href="https://nvv-field-maps.bala-4984.chatgpt.site/"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#102b35"><title>NVV Field maps • Field workspace</title><link rel="manifest" href="manifest.json"><link rel="icon" href="nvv-logo.png"><link rel="stylesheet" href="vendor/leaflet.css?v=20260928b"><link rel="stylesheet" href="style.css?v=20260928b"><style>#empty{display:none!important}#editor{display:none!important}.nvv-place-search{position:absolute;z-index:1600;top:10px;left:52px;width:min(360px,calc(100% - 120px))}.nvv-place-search form{display:flex;background:#fff;border-radius:8px;box-shadow:0 1px 6px #0004;overflow:hidden}.nvv-place-search input{flex:1;min-width:0;border:0;padding:10px 12px}.nvv-place-search form button{border:0;border-left:1px solid #ddd;background:#fff;padding:0 12px}.nvv-place-results{margin-top:4px;background:#fff;border-radius:8px;box-shadow:0 2px 10px #0004;max-height:220px;overflow:auto}.nvv-place-results button{display:block;width:100%;border:0;border-bottom:1px solid #eee;background:#fff;padding:9px 11px;text-align:left}
 /* Mobile field layout: use project-name strip for place search; keep original tool symbols/trays */
 @media(max-width:800px){
   .workspace{width:100%!important}
@@ -18,12 +18,12 @@
 #draw-tray-toggle{margin-top:5px}
 </style><style>
 @media(max-width:800px){#gps.nvv-gps-below-n{position:fixed!important;right:17px!important;top:510px!important;z-index:2050!important;width:54px!important;height:54px!important}.survey-tools{right:10px!important}.survey-tools #tools-tray,.survey-tools #draw-tray{max-height:42vh!important;overflow:auto!important}}
-</style></head><body>
+</style><style>#layers-tray #loaded-projects{display:none!important}</style></head><body>
 <header><div class="brand"><img class="nvv-logo" src="nvv-logo.png" alt="NVV Prasad — Transmission Line Survey and Engineering Services"><div><strong>NVV Field maps</strong><small>Transmission line field workspace</small></div></div><span id="offline">Preparing offline use…</span><button id="help">Help</button></header>
 <main><aside><div class="section-title">PROJECT <span>01</span></div><input id="project" aria-label="Project name" value="Untitled survey"><label class="primary file">＋ Import KML / KMZ<input id="import" type="file" accept=".kml,.kmz" hidden></label><div class="row"><button id="demo">Try sample</button><button id="backup">Backup</button><label class="file button">Restore<input id="restore" type="file" accept=".json" hidden></label></div><p class="muted">Files stay on this device. Export a backup before clearing browser data.</p><div class="section-title">SURVEY LAYERS <span id="count">0</span></div><div id="features"></div><div class="row"><button id="newpoint">＋ Tower</button><button id="newline">＋ Route</button></div><hr><div class="section-title">EXPORT COORDINATES</div><label>Datum<input value="WGS 84" disabled></label><div class="row"><label>UTM zone<input id="zone" type="number" min="1" max="60" value="44"></label><label>Hemisphere<select id="hemisphere"><option value="N">North</option><option value="S">South</option></select></label></div><p class="muted">Confirm the zone for your project. DXF uses metres; chainage uses horizontal UTM grid distance.</p><div class="exports"><button id="kml">↓ KML</button><button id="dxf">↓ DXF</button><button id="excel">↓ Excel vertex report</button></div><p id="saved" class="muted">No survey loaded</p></aside>
 <section class="workspace"><div class="mapbar"><div><b id="title">Your field workspace</b><small id="summary">Import a survey or try the sample to begin.</small></div><div class="row nvv-toptools"><button id="undo" disabled title="Undo">↶</button><button id="nvv-redo" title="Redo">↷</button><button id="nvv-import" title="Import">⇧</button><button id="nvv-export" title="Export">⇩</button><button id="nvv-projects" title="My Projects">📁</button><button id="fit" title="Fit Survey">⌗</button></div></div><button id="gps" class="nvv-gps-float" title="My location">⌖</button><div id="map"><div id="empty"></div></div><div class="mapfoot"><span>Plain map · available offline</span><span id="position">WGS 84</span></div><section id="editor"><div class="editor-head"><div><h2 id="edit-title">Vertex editor</h2><p id="edit-hint">Select a layer to inspect and edit coordinates.</p></div><div class="row"><button id="rename">Rename</button><button id="append">＋ Vertex</button><button id="remove">Delete layer</button></div></div><div class="tablewrap"><table><thead><tr><th>Vertex</th><th>Latitude °</th><th>Longitude °</th><th>Source altitude m</th><th></th></tr></thead><tbody id="vertices"></tbody></table></div></section></section></main><div id="toast" role="status" aria-live="polite"></div>
 <dialog id="dialog"><form id="form"><h2 id="dialog-title"></h2><div id="fields"></div><p id="form-error" role="alert"></p><div class="row"><button type="button" id="cancel">Cancel</button><button class="primary" type="submit">Save</button></div></form></dialog>
-<script src="vendor/leaflet.js"></script><script src="https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate-src.js"></script><script>(function(){const old=L.map;L.map=function(id,o){return old.call(L,id,Object.assign({rotate:true,touchRotate:true,rotateControl:{closeOnZeroBearing:false}},o||{}))}})();</script><script src="vendor/jszip.min.js"></script><script src="vendor/proj4.js"></script><script src="vendor/exceljs.min.js"></script><script src="core.js"></script><script src="kml-projects.js"></script><script src="app.js"></script><script src="villages.js"></script><script src="boundary-core.js"></script><script src="boundaries.js"></script><script src="angles.js"></script><script src="excel-report.js"></script><script src="forests.js"></script><script src="districts.js"></script><script src="vertex-labels.js"></script><script src="excel-options.js"></script><script src="project-controls.js"></script><script src="location.js"></script><script src="install.js"></script><script src="map-options.js"></script><script src="map-tools.js"></script><script src="trays.js"></script>
+<script src="vendor/leaflet.js?v=20260928b"></script><script src="https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate-src.js"></script><script>(function(){const old=L.map;L.map=function(id,o){return old.call(L,id,Object.assign({rotate:true,touchRotate:true,rotateControl:{closeOnZeroBearing:false}},o||{}))}})();</script><script src="vendor/jszip.min.js?v=20260928b"></script><script src="vendor/proj4.js?v=20260928b"></script><script src="vendor/exceljs.min.js?v=20260928b"></script><script src="core.js"></script><script src="kml-projects.js"></script><script src="app.js?v=20260928b"></script><script src="villages.js?v=20260928b"></script><script src="boundary-core.js?v=20260928b"></script><script src="boundaries.js?v=20260928b"></script><script src="angles.js?v=20260928b"></script><script src="excel-report.js?v=20260928b"></script><script src="forests.js?v=20260928b"></script><script src="districts.js?v=20260928b"></script><script src="vertex-labels.js?v=20260928b"></script><script src="excel-options.js?v=20260928b"></script><script src="project-controls.js?v=20260928b"></script><script src="location.js?v=20260928b"></script><script src="install.js?v=20260928b"></script><script src="map-options.js?v=20260928b"></script><script src="map-tools.js?v=20260928b"></script><script src="trays.js?v=20260928b"></script>
 <script>(function(){
 try{satellite.setUrl('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}');labels.setUrl('https://mt1.google.com/vt/lyrs=h&x={x}&y={y}&z={z}');}catch(e){}
 try{if(map.touchRotate&&map.touchRotate.enable)map.touchRotate.enable();}catch(e){}
@@ -84,4 +84,43 @@ function ensureAreaButtons(){
 }
 setTimeout(ensureAreaButtons,400);setTimeout(ensureAreaButtons,1400);
 map.on('click',e=>{if(!area)return;ap.push({lat:e.latlng.lat,lon:((e.latlng.lng+180)%360+360)%360-180,alt:null});preview.clearLayers();if(ap.length>1)L.polyline(ap.map(p=>[p.lat,p.lon]),{color:'#167e97',weight:3,interactive:false}).addTo(preview);ap.forEach(p=>L.circleMarker([p.lat,p.lon],{radius:4,interactive:false}).addTo(preview))});
+})();</script><script>(function(){
+/* Live GPS: keep marker anchored while zooming/panning, show accuracy, offer save. */
+let nvvWatch=null,nvvLast=null;
+function drawGPS(p,center){
+ const lat=p.coords.latitude,lon=p.coords.longitude,acc=p.coords.accuracy;nvvLast={lat,lon,alt:Number.isFinite(p.coords.altitude)?p.coords.altitude:null,accuracy:acc};
+ gpsLayer.clearLayers();
+ L.circle([lat,lon],{radius:acc,color:'#2878be',weight:1,fillOpacity:.08,interactive:false}).addTo(gpsLayer);
+ const m=L.circleMarker([lat,lon],{radius:8,color:'#fff',weight:3,fillColor:'#168bd2',fillOpacity:1}).addTo(gpsLayer);
+ m.bindTooltip('Current location · ±'+Math.round(acc)+' m',{direction:'top'});
+ if(center)map.setView([lat,lon],Math.max(map.getZoom(),18));
+}
+const gps=document.getElementById('gps');
+if(gps)gps.onclick=()=>{
+ if(!navigator.geolocation)return toast('Location is unavailable on this device.');
+ if(nvvWatch!==null){navigator.geolocation.clearWatch(nvvWatch);nvvWatch=null}
+ navigator.geolocation.getCurrentPosition(p=>{
+   drawGPS(p,true);
+   if(confirm('Current location found (accuracy ±'+Math.round(p.coords.accuracy)+' m). Save this location as a point?')){
+    const pt={lat:p.coords.latitude,lon:p.coords.longitude,alt:Number.isFinite(p.coords.altitude)?p.coords.altitude:null};
+    modal('Add point',pointFields(pt),v=>{const point=toPoint(v);if(!point.label)point.label='GPS '+new Date().toLocaleTimeString();commit(()=>{const f={id:uid(),name:point.label,type:'Point',group:'active',points:[point]};state.features.push(f);selected=f.id})});
+   }
+   nvvWatch=navigator.geolocation.watchPosition(q=>drawGPS(q,false),()=>{}, {enableHighAccuracy:true,maximumAge:0,timeout:20000});
+ },e=>toast('Location unavailable: '+e.message),{enableHighAccuracy:true,maximumAge:0,timeout:20000});
+};
+/* My Projects lives only behind the folder button, not in Layers. */
+function openProjects(){
+ const panel=document.getElementById('loaded-projects');if(!panel)return toast('No projects loaded.');
+ const old=document.getElementById('nvv-projects-modal');if(old)old.remove();
+ const wrap=document.createElement('div');wrap.id='nvv-projects-modal';wrap.style.cssText='position:fixed;inset:0;background:#0006;z-index:5000;display:flex;align-items:center;justify-content:center;padding:18px';
+ const box=document.createElement('div');box.style.cssText='background:white;border-radius:18px;max-width:520px;width:100%;max-height:80vh;overflow:auto;padding:18px';
+ const head=document.createElement('div');head.style.cssText='display:flex;justify-content:space-between;align-items:center;gap:12px';
+ const h=document.createElement('h2');h.textContent='My Projects';const x=document.createElement('button');x.textContent='×';x.onclick=()=>wrap.remove();head.append(h,x);
+ const clone=panel.cloneNode(true);clone.removeAttribute('id');clone.style.display='block';
+ box.append(head,clone);wrap.append(box);document.body.append(wrap);wrap.onclick=e=>{if(e.target===wrap)wrap.remove()};
+ /* cloned controls proxy clicks back to the real project controls */
+ const real=[...panel.querySelectorAll('input,summary')],copy=[...clone.querySelectorAll('input,summary')];
+ copy.forEach((el,i)=>{if(el.tagName==='INPUT')el.onchange=()=>{real[i]?.click();setTimeout(()=>{wrap.remove();openProjects()},60)}});
+}
+const pb=document.getElementById('nvv-projects');if(pb){pb.onclick=null;pb.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();openProjects()},true)}
 })();</script></body></html>
