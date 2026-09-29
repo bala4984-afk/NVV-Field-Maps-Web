@@ -20,4 +20,22 @@ const oldSelect=window.select;if(typeof oldSelect==='function')window.select=fun
 function hitPaths(){map.eachLayer(l=>{if(l.__nvvHit||!(l instanceof L.Polyline)||l instanceof L.Polygon)return;const ll=l.getLatLngs?.();if(!ll?.length)return;l.__nvvHit=true;try{const h=L.polyline(ll,{weight:18,opacity:0,interactive:true});h.__nvvHit=true;h.addTo(map);h.on('click',e=>{L.DomEvent.stopPropagation(e.originalEvent);l.fire('click',e)})}catch(_){}})}map.on('layeradd',()=>setTimeout(hitPaths,0));setTimeout(hitPaths,700);
 $('import')?.addEventListener('change',()=>setTimeout(()=>{try{(state.features||[]).forEach(tagFeature);const ps=state.features.flatMap(f=>(f.points||[]).map(p=>[p.lat,p.lon]));if(ps.length===1)map.setView(ps[0],18);else if(ps.length)map.fitBounds(L.latLngBounds(ps),{padding:[36,36],maxZoom:18})}catch(_){}},600));
 setTimeout(()=>{buildLeft();try{const bg=$('background');if(bg&&[...bg.options].some(o=>o.value==='hybrid')){bg.value='hybrid';bg.onchange?.()}}catch(_){}},500);
+
+/* Enforce tray ownership after hosted tray modules finish rendering. */
+function nvvCleanOwnership(){
+ try{
+  document.querySelectorAll('#layers-tray #loaded-projects,#layers-tray #projects,#layers-tray .projects,#layers-tray .project-list,main>aside #loaded-projects,main>aside #projects,main>aside .projects,main>aside .project-list').forEach(e=>e.style.display='none');
+  document.querySelectorAll('#excel,#vertex-export,[data-action="vertex-export"],button[title*="vertex" i],button[title*="excel" i]').forEach(e=>e.style.display='none');
+  const stack=document.querySelector('.nvv-left-stack');
+  if(stack){
+   const keep=new Set([...stack.querySelectorAll('button')]);
+   document.querySelectorAll('button').forEach(b=>{
+    if(keep.has(b)||b.closest('.nvv-project-panel'))return;
+    const t=((b.title||'')+' '+(b.getAttribute('aria-label')||'')+' '+(b.textContent||'')).toLowerCase();
+    if(t.includes('my projects'))b.style.display='none';
+   });
+  }
+ }catch(_){}
+}
+setTimeout(nvvCleanOwnership,700);setTimeout(nvvCleanOwnership,1800);
 })();
