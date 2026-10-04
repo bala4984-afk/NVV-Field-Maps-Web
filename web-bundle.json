@@ -1,5 +1,5 @@
 {
-  "version": "1.0.69",
+  "version": "1.0.70",
   "sha256": "0807724b032c32c8fdc72fdfbae6d3d6e3b264777d1cdc4e4ad1920a391e08c4",
   "parts": [
     {
@@ -50,23 +50,27 @@
     },
     {
       "file": "workspace.js",
-      "sha256": "b8d209c81af465bb2eb415ddd69ed47e3caddb7baaf5435c7a8e9dbbad055a68"
+      "sha256": "ee411734a5d39a2a36b4bf0e3ee5ac972e68a19e9d257bbb727a1f7317e5b934"
     },
     {
       "file": "map-tools.js",
-      "sha256": "843e2947e1fec5dc4ab97b4192e5f84e5d80154710ecf0ff782e4d2078c9e703"
+      "sha256": "e23321f4c3e6451aac0c769deb5b48581d714c60c9359c8f240d16f7754a6413"
     },
     {
       "file": "field.css",
       "sha256": "93a41b77f18406753a51bac7929d05be10604939c04b158db1fbd08780aa2a18"
     },
     {
+      "file": "excel-report.js",
+      "sha256": "7520b88bd6a795ee6b783f3fff651a0ba0586371690b140335243e6b1fa978f2"
+    },
+    {
       "file": "index.html",
-      "sha256": "683779fc6de3bc1f66cf9add625613ed268089d77972a016791a4fa98e0e131d"
+      "sha256": "5471e1abf394a3352f04503b84b0cfddb8c418fb4813d036f020baf71076b41b"
     },
     {
       "file": "sw.js",
-      "sha256": "7489d114765c3704bac7393c425a203edc4233c7b2c1ba2f5ec33ed3f67ec85d"
+      "sha256": "ef9d514f76808d719479c48e73f8e20bc9a74f0f0b7896b4e81ae559cbbb9e15"
     }
   ]
 }

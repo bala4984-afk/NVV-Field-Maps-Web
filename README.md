@@ -1,3 +1,2 @@
-# NVV Field Maps 1.0.69
-
-Matches Android APK 1.0.69. Run `python3 build-web.py` to verify the complete baseline package and current source overlays, then deploy `public/`. The overlays contain the current app code; all overlay hashes are checked before deployment. Reference data and vendor libraries are retained from the verified bundle. Includes measurement vertex drag/insert/remove, exact existing-point starts, Cancel rollback, desktop Esc, draggable dialogs and selected polyline export. Projects stay on each visitor’s device.
+# NVV Field Maps 1.0.70
+Matches Android APK 1.0.70. Run `python3 build-web.py` to verify the baseline bundle and current source overlays before deployment. Current release includes template Excel export, DMS LT/RT, zoom controls, one drawing tray, vertex insertion/removal, whole-feature delete and safe editing/export flow. Projects remain on each visitor device.
