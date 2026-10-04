@@ -3,24 +3,44 @@
   "sha256": "0807724b032c32c8fdc72fdfbae6d3d6e3b264777d1cdc4e4ad1920a391e08c4",
   "parts": [
     {
-      "file": "nvv-web-1.0.68-00.part",
-      "sha256": "b77bb0235afca88ce33bf4137ae2607a24b2940b751243f28c812e4265e55ad6"
+      "file": "nvv-web-1.0.68-00.pack",
+      "sha256": "b75674c90e15e382f416b60b929fafb4d155f11ecbe8a15152b6ba3348567516"
     },
     {
-      "file": "nvv-web-1.0.68-01.part",
-      "sha256": "00c1cbc68ec49b8935f1c73e1632c24440954d494c3b11a7049651908a177d2b"
+      "file": "nvv-web-1.0.68-01.pack",
+      "sha256": "f5fb4ed29ca2113a5c9e7447e1335c293255a4ea9fb4191bc5b7a9269671cf37"
     },
     {
-      "file": "nvv-web-1.0.68-02.part",
-      "sha256": "91bee1264ff740a81a42c4034577097ff5d95d716295aa6861a586f0a4b6746f"
+      "file": "nvv-web-1.0.68-02.pack",
+      "sha256": "f5a6a89bf01b1527cc2209cfec988afca57df95160872288f13f8ca904c0bb99"
     },
     {
-      "file": "nvv-web-1.0.68-03.part",
-      "sha256": "b95a7b8ba8767597097c62ef8908ae06f90e2e8f0beb1ca784d130d6741ccb66"
+      "file": "nvv-web-1.0.68-03.pack",
+      "sha256": "8f0499fb959273d74132280b573d78b1d83188b4b0345879137a5c9127bce6dd"
     },
     {
-      "file": "nvv-web-1.0.68-04.part",
-      "sha256": "ae12973f2e1dd22095ad75794b8f0f83fea9dd79d5eb7ccfb68f599d95f7f95d"
+      "file": "nvv-web-1.0.68-04.pack",
+      "sha256": "f487847ce2812df994fa9fe452304e647bb48478df2beb45489e87a233d93a58"
+    },
+    {
+      "file": "nvv-web-1.0.68-05.pack",
+      "sha256": "99da2ba4d5864a4ea3ccca77229683752b546a96388d231b81cc747cfe317bd4"
+    },
+    {
+      "file": "nvv-web-1.0.68-06.pack",
+      "sha256": "8b0b1dc426ad41570c0ffeae7d520d9e41b8408c45f7800868bb5edbd873ec37"
+    },
+    {
+      "file": "nvv-web-1.0.68-07.pack",
+      "sha256": "36cf82aa066c9fb6a6843d321c74449a60acbf8dda9a1771ef944dd043d778da"
+    },
+    {
+      "file": "nvv-web-1.0.68-08.pack",
+      "sha256": "b3d0fd2d066b4ba8e56358820068c653d67416f8b62f6a3bb3328c567c7f68cd"
+    },
+    {
+      "file": "nvv-web-1.0.68-09.pack",
+      "sha256": "fdd6699829aedec10fa2df43acabde0d23ea72be5a343e821725108bc7832822"
     }
   ]
 }
