@@ -1,0 +1,29 @@
+(function(){
+let measuring=false,points=[];const measurement=L.layerGroup().addTo(map);
+const toolbar=L.control({position:'topright'});let output,measureButton;const measureHUD=document.createElement('div');measureHUD.className='draw-hud measurement-hud';measureHUD.hidden=true;const measurementInfo=document.createElement('span');const saveMeasurement=document.createElement('button');saveMeasurement.type='button';saveMeasurement.textContent='Save';saveMeasurement.setAttribute('aria-label','Save measurement');function finishMeasurement(){if(points.length<2)return toast('Choose at least two points to save a measurement.');const snapshot=points.map(p=>({lat:p.lat,lon:p.lng,alt:null}));stop();window.saveSurveyPolyline(snapshot,'Measurement',()=>{points=[];measurement.clearLayers();output.textContent=''})}saveMeasurement.onclick=finishMeasurement;const cancelMeasurement=document.createElement('button');cancelMeasurement.type='button';cancelMeasurement.textContent='Cancel';cancelMeasurement.setAttribute('aria-label','Cancel measurement');cancelMeasurement.onclick=()=>{stop();points=[];measurement.clearLayers();output.textContent=''};const undoMeasurement=document.createElement('button');undoMeasurement.type='button';undoMeasurement.textContent='↶';undoMeasurement.setAttribute('aria-label','Undo last measurement point');undoMeasurement.onclick=()=>{if(points.length){points.pop();redraw()}};measureHUD.append(measurementInfo,undoMeasurement,saveMeasurement,cancelMeasurement);document.querySelector('main').append(measureHUD);
+function stop(){measureHUD.hidden=true;measuring=false;measureButton.setAttribute('aria-pressed','false');map.getContainer().classList.remove('measuring')}
+function redraw(){
+measurement.clearLayers();let total=0;
+if(points.length)L.polyline(points,{color:'#c23865',weight:3,dashArray:'6 5',interactive:false}).addTo(measurement);
+points.forEach((p,i)=>{
+L.circleMarker(p,{radius:5,color:'#c23865',interactive:false}).bindTooltip(String(i+1),{permanent:true,direction:'top',className:'measure-point-label'}).addTo(measurement);
+if(i)total+=map.distance(points[i-1],p);
+});
+if(window.NVVRouteMetrics)window.NVVRouteMetrics(points.map(p=>({lat:p.lat,lon:p.lng})),measurement);
+measurementInfo.textContent='Measure · '+points.length+' points · '+total.toFixed(2)+' m';output.textContent=points.length?`Total ${total.toFixed(2)} m · ${points.length} points`:'Tap map to measure';
+}
+toolbar.onAdd=()=>{const box=L.DomUtil.create('div','survey-tools');box.setAttribute('aria-label','Map survey tools');L.DomEvent.disableClickPropagation(box);L.DomEvent.disableScrollPropagation(box);
+const add=(text,title,action)=>{const b=document.createElement('button');b.type='button';b.textContent=text;b.title=title;b.onclick=action;box.append(b);return b};
+measureButton=add('↔ Measure','Measure distance by tapping points on the map',()=>{if(mapPick)return toast('Finish picking your vertex first.');if(measuring){if(points.length>=2)finishMeasurement();else stop();return}measuring=true;measureHUD.hidden=false;points=[];redraw();measureButton.setAttribute('aria-pressed','true');map.getContainer().classList.add('measuring');toast('Tap the map to measure. Tap Save to keep the measurement. Distance is approximate ground distance.')});measureButton.setAttribute('aria-pressed','false');
+add('✎ KMZ edit','Edit the selected point or route',()=>{stop();const f=active();if(!f)return toast('Select an imported point or route first.');if(locked())return toast('This layer is read-only. Finalized layers must be moved to Working survey before editing; polygon coordinates are read-only.');modal('Choose vertex to edit',[{id:'vertex',label:'Vertex',options:f.points.map((p,i)=>[String(i),S.vertexLabel(f,i)])}],v=>{setTimeout(()=>editVertex(Number(v.vertex)),0)})});
+add('＋ Vertex','Add a vertex to the selected route',()=>{stop();const f=active();if(!f||f.type!=='LineString')return toast('Select a route to add a vertex.');if(locked())return toast('Move this route to Working survey before editing.');$('append').click()});
+add('⌖ Location','Show current location',()=>{stop();$('gps').click()});
+output=document.createElement('div');output.className='measure-result';output.setAttribute('role','status');box.append(output);
+add('Clear measure','Clear measured points',()=>{stop();points=[];measurement.clearLayers();output.textContent=''});return box};toolbar.addTo(map);
+const previousSelect=select;select=function(id){if(!measuring)previousSelect(id)};
+map.on('click',e=>{if(measuring&&!mapPick){points.push(e.latlng);redraw()}});
+let refreshTimer;map.on('moveend',()=>{if(measuring){clearTimeout(refreshTimer);refreshTimer=setTimeout(redraw,120)}});
+document.addEventListener('survey-stop-tools',stop);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&measuring)stop()});
+})();
+

@@ -1,0 +1,8 @@
+// Project visibility is independent of individual feature visibility.
+(function(){
+const panel=document.createElement('section');panel.id='loaded-projects';$('features').before(panel);
+const originalRender=render;
+function switchRow(name,features,property){const label=document.createElement('label');label.className='check';const box=document.createElement('input');box.type='checkbox';const enabled=features.filter(f=>f[property]!==true).length;box.checked=enabled>0;box.indeterminate=enabled>0&&enabled<features.length;box.setAttribute('aria-label','Show '+name);box.onchange=()=>commit(()=>features.forEach(f=>f[property]=!box.checked));label.append(box,document.createTextNode(name+' ('+features.length+')'));return label}
+render=function(){originalRender();panel.replaceChildren();if(!state.features.length)return;const title=document.createElement('p');title.className='section-title';title.textContent='OPEN PROJECTS';panel.append(title);const allRow=switchRow('All projects',state.features,'projectHidden');panel.append(allRow);const projects=new Map();for(const f of state.features){const key=f.projectId||'existing';if(!projects.has(key))projects.set(key,[]);projects.get(key).push(f)}for(const fs of projects.values()){const details=document.createElement('details');details.open=true;const summary=document.createElement('summary');summary.textContent=fs[0].projectName||'Existing survey';details.append(summary,switchRow('Project: '+summary.textContent,fs,'projectHidden'));const folders=[...new Set(fs.map(f=>f.folderPath||'Shared / ungrouped'))];for(const folder of folders){const subset=fs.filter(f=>(f.folderPath||'Shared / ungrouped')===folder);details.append(switchRow(folder,subset,'folderHidden'))}panel.append(details)}};
+render();
+})();

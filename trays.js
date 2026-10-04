@@ -1,0 +1,23 @@
+(function(){
+document.body.classList.add('tray-layout');
+const aside=document.querySelector('aside');aside.id='layers-tray';aside.hidden=true;
+const closer=document.createElement('button');closer.type='button';closer.textContent='× Close layers';aside.prepend(closer);
+const left=L.control({position:'topleft'});let layerButton;
+function showLayers(show){aside.hidden=!show;layerButton.setAttribute('aria-expanded',String(show));map.invalidateSize()}
+left.onAdd=()=>{const box=L.DomUtil.create('div','map-tray-toggle');L.DomEvent.disableClickPropagation(box);layerButton=document.createElement('button');layerButton.type='button';layerButton.textContent='▱';layerButton.title='Layers, projects and exports';layerButton.setAttribute('aria-label','Open layers, projects and exports');layerButton.setAttribute('aria-controls','layers-tray');layerButton.setAttribute('aria-expanded','false');layerButton.onclick=()=>showLayers(aside.hidden);box.append(layerButton);return box};left.addTo(map);closer.onclick=()=>showLayers(false);
+const tools=document.querySelector('.survey-tools');const buttons=[...tools.querySelectorAll('button')];
+const symbols=['↔','✎','＋','⌖','⌫'];const names=['Measure','Edit selected layer','Add vertex','Current location','Clear measurement'];buttons.forEach((b,i)=>{b.textContent=symbols[i];b.setAttribute('aria-label',names[i]);b.title=names[i]});
+const drawer=document.createElement('div');drawer.id='tools-tray';drawer.hidden=true;while(tools.firstChild)drawer.append(tools.firstChild);
+const toggle=document.createElement('button');toggle.type='button';toggle.textContent='⚒';toggle.title='Show or hide map tools';toggle.setAttribute('aria-label','Show or hide map tools');toggle.setAttribute('aria-controls','tools-tray');toggle.setAttribute('aria-expanded','false');toggle.onclick=()=>{drawer.hidden=!drawer.hidden;toggle.setAttribute('aria-expanded',String(!drawer.hidden))};tools.append(toggle,drawer);
+let drawMode=null,points=[];const preview=L.layerGroup().addTo(map);
+const note=document.createElement('p');note.className='draw-status';note.setAttribute('role','status');
+function end(){drawMode=null;points=[];preview.clearLayers();note.textContent='';finish.hidden=cancel.hidden=true;map.getContainer().classList.remove('drawing-route')}
+const add=(symbol,label,action)=>{const b=document.createElement('button');b.type='button';b.textContent=symbol;b.title=label;b.setAttribute('aria-label',label);b.onclick=action;drawer.append(b);return b};
+function begin(mode){if(mapPick)return toast('Finish picking the current vertex first.');if(buttons[0].getAttribute('aria-pressed')==='true')buttons[0].click();end();drawMode=mode;cancel.hidden=false;finish.hidden=mode==='Line';note.textContent=mode==='Point'?'Tap map for point':mode==='Line'?'Tap start and end':'Tap vertices, then ✓';map.getContainer().classList.add('drawing-route')}
+add('●','Add point on map',()=>begin('Point'));add('╱','Draw line with two points',()=>begin('Line'));add('⌁','Draw polyline on map',()=>begin('Polyline'));
+add('⌦','Delete selected layer',()=>{end();if(!active())return toast('Select a layer to delete first.');if(group(active())==='final')return toast('Finalized layers are locked.');$('remove').click()});
+function save(){if(points.length<2)return toast('Choose at least two vertices.');const saved=points.map(p=>({...p})),kind=drawMode;end();modal('Save '+kind.toLowerCase(),[{id:'name',label:'Layer name',value:kind,required:true}],v=>{if(!v.name.trim())throw Error('Enter a name.');commit(()=>{const f={id:uid(),name:v.name.trim(),type:'LineString',group:'active',points:saved};state.features.push(f);selected=f.id})})}
+const finish=add('✓','Finish polyline',save),cancel=add('×','Cancel drawing',end);finish.hidden=cancel.hidden=true;drawer.append(note);
+map.on('click',e=>{if(!drawMode||mapPick)return;const p={lat:e.latlng.lat,lon:((e.latlng.lng+180)%360+360)%360-180,alt:null};if(drawMode==='Point'){end();modal('Add point',pointFields(p),v=>{const point=toPoint(v);if(!point.label)throw Error('Enter a point name.');commit(()=>{const f={id:uid(),name:point.label,type:'Point',group:'active',points:[point]};state.features.push(f);selected=f.id})});return}points.push(p);preview.clearLayers();L.polyline(points.map(p=>[p.lat,p.lon]),{color:'#167e97',weight:3,interactive:false}).addTo(preview);points.forEach(p=>L.circleMarker([p.lat,p.lon],{radius:4,interactive:false}).addTo(preview));note.textContent=points.length+' points · ✓ to finish';if(drawMode==='Line'&&points.length===2)save()});
+buttons.forEach(b=>b.addEventListener('click',end));document.addEventListener('keydown',e=>{if(e.key==='Escape'){end();showLayers(false);drawer.hidden=true;toggle.setAttribute('aria-expanded','false')}});
+})();

@@ -1,0 +1,10 @@
+(function(){
+const north=L.control({position:'topright'});north.onAdd=()=>{const el=L.DomUtil.create('div','north-indicator');el.title='North is always at the top of this map';el.setAttribute('aria-label','North direction: map top');el.innerHTML='<b>N</b><span aria-hidden="true">▲</span>';L.DomEvent.disableClickPropagation(el);return el};north.addTo(map);
+const status=document.createElement('p');status.className='muted';status.id='location-status';status.setAttribute('role','status');$('editor').before(status);
+$('gps').onclick=()=>{
+if(!window.isSecureContext){status.textContent='Phone GPS requires a secure HTTPS app link. This local HTTP address cannot request your location.';toast(status.textContent);return}
+if(!navigator.geolocation){status.textContent='Location is unavailable in this browser.';return}
+$('gps').disabled=true;status.textContent='Finding your current location… Allow location access if your browser asks.';
+navigator.geolocation.getCurrentPosition(position=>{const {latitude,longitude,accuracy}=position.coords;gpsLayer.clearLayers();L.circle([latitude,longitude],{radius:accuracy,color:'#2878be',fillOpacity:0.1}).addTo(gpsLayer);const marker=L.circleMarker([latitude,longitude],{radius:8,color:'#fff',weight:3,fillColor:'#2878be',fillOpacity:1}).addTo(gpsLayer);marker.bindTooltip('Your current location',{permanent:true,direction:'top'});map.setView([latitude,longitude],17);status.textContent=`Current location: ${latitude.toFixed(7)}°, ${longitude.toFixed(7)}° · GPS accuracy ±${Math.round(accuracy)} m · ${new Date(position.timestamp).toLocaleTimeString()}. Tap My location to refresh.`;$('gps').disabled=false},error=>{status.textContent=error.code===1?'Location permission is blocked. Allow location for this app in browser settings, then tap My location again.':error.code===2?'Your device could not determine its location. Check device location settings and try again.':'Location request timed out. Move to an open area and try again.';$('gps').disabled=false;toast(status.textContent)},{enableHighAccuracy:true,timeout:20000,maximumAge:0});
+};
+})();

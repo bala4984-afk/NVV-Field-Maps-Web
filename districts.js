@@ -1,0 +1,2 @@
+/* District lookup is retained for reports; no separate map overlay. */
+const APDistricts=(()=>{let index,pending;async function ensure(){if(index)return index;if(pending)return pending;pending=(async()=>{const r=await fetch('data/ap-districts.json');if(!r.ok)throw Error('District file unavailable.');const data=await r.json();if(data.features.length!==28)throw Error('District file incomplete.');index=VillageBoundaries.createIndex(data);index.metadata=data.metadata;return index})().finally(()=>pending=null);return pending}return {ensure}})();

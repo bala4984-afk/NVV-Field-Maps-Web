@@ -10,10 +10,10 @@ function kml(s){
  validate(s);
  const coords=p=>`${p.lon},${p.lat}${p.alt===null?'':','+p.alt}`;
  const features=s.features.map((f,fi)=>{
-  const routeId=`survey-route-${fi}`,mode=esc(f.altMode||'clampToGround');
+  const routeId=`survey-route-${fi}`,mode=esc(f.altMode||'clampToGround'),style=root.FeatureStyle?root.FeatureStyle.kml(f):'';
   const labels=f.type==='LineString'?`<ExtendedData><Data name="lineSurveyVertexLabels"><value>${esc(JSON.stringify(f.points.map(p=>p.label||'')))}</value></Data></ExtendedData>`:'';
-  if(f.type==='Polygon')return `<Placemark><name>${esc(f.name)}</name><description>${esc(f.description||'')}</description><Polygon><altitudeMode>${mode}</altitudeMode>${rings(f).map((r,i)=>{const tag=i?'innerBoundaryIs':'outerBoundaryIs';return `<${tag}><LinearRing><coordinates>${r.map(coords).join(' ')}</coordinates></LinearRing></${tag}>`}).join('')}</Polygon></Placemark>`;
-  const geometry=`<Placemark${f.type==='LineString'?` id="${routeId}"`:''}><name>${esc(f.name)}</name><description>${esc(f.description||'')}</description>${labels}<${f.type}><altitudeMode>${mode}</altitudeMode><coordinates>${f.points.map(coords).join(' ')}</coordinates></${f.type}></Placemark>`;
+  if(f.type==='Polygon')return `<Placemark><name>${esc(f.name)}</name><description>${esc(f.description||'')}</description>${style}<Polygon><altitudeMode>${mode}</altitudeMode>${rings(f).map((r,i)=>{const tag=i?'innerBoundaryIs':'outerBoundaryIs';return `<${tag}><LinearRing><coordinates>${r.map(coords).join(' ')}</coordinates></LinearRing></${tag}>`}).join('')}</Polygon></Placemark>`;
+  const geometry=`<Placemark${f.type==='LineString'?` id="${routeId}"`:''}><name>${esc(f.name)}</name><description>${esc(f.description||'')}</description>${style}${labels}<${f.type}><altitudeMode>${mode}</altitudeMode><coordinates>${f.points.map(coords).join(' ')}</coordinates></${f.type}></Placemark>`;
   if(f.type!=='LineString')return geometry;
   const markers=f.points.map((p,i)=>`<Placemark><name>${esc(p.label||`${f.name} - V${i+1}`)}</name><description>${esc(`Route: ${f.name}; vertex ${i+1}`)}</description><styleUrl>#survey-vertex</styleUrl><ExtendedData><Data name="lineSurveyParentRoute"><value>${routeId}</value></Data></ExtendedData><Point><altitudeMode>${mode}</altitudeMode><coordinates>${coords(p)}</coordinates></Point></Placemark>`).join('');
   return `${geometry}<Folder><name>${esc(f.name)} — Vertex points</name><visibility>1</visibility>${markers}</Folder>`;

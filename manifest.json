@@ -1,0 +1,17 @@
+{
+  "name": "NVV Field maps",
+  "short_name": "NVV Field maps",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#eef2f4",
+  "theme_color": "#102b35",
+  "icons": [
+    {
+      "sizes": "any",
+      "type": "image/png",
+      "src": "nvv-logo.png",
+      "purpose": "any"
+    }
+  ]
+}
