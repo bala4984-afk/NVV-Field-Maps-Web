@@ -62,11 +62,11 @@
     },
     {
       "file": "index.html",
-      "sha256": "c6969bc7472ca6881dbef5c7433890a8d95da8d8b5f855192846f1dbfaa03c8b"
+      "sha256": "683779fc6de3bc1f66cf9add625613ed268089d77972a016791a4fa98e0e131d"
     },
     {
       "file": "sw.js",
-      "sha256": "244d330e8d6ccae36e20edbd3b4144d835d0d45c900a243fb95d34522cf28da1"
+      "sha256": "7489d114765c3704bac7393c425a203edc4233c7b2c1ba2f5ec33ed3f67ec85d"
     }
   ]
 }
