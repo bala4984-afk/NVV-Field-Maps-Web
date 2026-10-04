@@ -7,7 +7,7 @@
  function refresh(){
   labels.clearLayers();if(!toggle.checked)return;
   const bounds=map.getBounds().pad(0.05),occupied=new Set();
-  for(const f of state.features){if(!visible(f)||f.type==='Point'||!FeatureStyle.get(f).labels||group(f)==='village')continue;if(f.type==='LineString'&&((editSession&&f.id===selected)||map.getZoom()<13))continue;if(f.type==='Polygon'&&map.getZoom()<12&&f.id!==selected)continue;
+  for(const f of state.features){if(f.circle||!visible(f)||f.type==='Point'||!FeatureStyle.get(f).labels||group(f)==='village')continue;if(f.type==='LineString'&&((editSession&&f.id===selected)||map.getZoom()<13))continue;if(f.type==='Polygon'&&map.getZoom()<12&&f.id!==selected)continue;
    const closing=new Set();if(f.type==='Polygon'){let n=0;for(const size of f.ringLengths){n+=size;closing.add(n-1)}}
    f.points.forEach((p,i)=>{
     if(closing.has(i)||!bounds.contains([p.lat,p.lon]))return;

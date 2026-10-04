@@ -66,15 +66,19 @@
     },
     {
       "file": "index.html",
-      "sha256": "35d50d4486823c37f315ee9f7f50c1dea2f4d5bfc4ca01f34ea4c6bac829f100"
+      "sha256": "73bea57d2932dbe932d6e586354dc8f4d220565ac452f8264276cb9ebffadd88"
     },
     {
       "file": "sw.js",
-      "sha256": "dcc6864a6a74f40019e3299c6c96f3dc4fcce01405ee02ee488fe009a4be4db0"
+      "sha256": "8787e9889991408cea614989315193ae98472b8a346dc8582b98ba94544fc3fc"
     },
     {
       "file": "survey-extras.js",
       "sha256": "dee5a16447e69c15e1b14c0ced10b0ca5f547ffe8e40ec8bd32ad8cd3fd613f5"
+    },
+    {
+      "file": "vertex-labels.js",
+      "sha256": "61727406a44c4cff3ad140a7358ac74040e02cfc22c1ed61995ebe3a658e05a5"
     }
   ]
 }
