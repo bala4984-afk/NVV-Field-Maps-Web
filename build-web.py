@@ -14,5 +14,11 @@ with zipfile.ZipFile(io.BytesIO(data)) as archive:
  for name in archive.namelist():
   assert (out/name).resolve().is_relative_to(out.resolve()),name
  archive.extractall(out)
+for overlay in manifest.get('overlays',[]):
+ source=Path(overlay['file'])
+ content=source.read_bytes()
+ assert hashlib.sha256(content).hexdigest()==overlay['sha256'],overlay['file']
+ assert (out/source).resolve().is_relative_to(out.resolve())
+ (out/source).write_bytes(content)
 (out/'.nojekyll').write_text('')
 print('Verified and extracted NVV web version '+manifest['version'])

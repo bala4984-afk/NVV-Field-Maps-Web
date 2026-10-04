@@ -1,5 +1,5 @@
 {
-  "version": "1.0.68",
+  "version": "1.0.69",
   "sha256": "0807724b032c32c8fdc72fdfbae6d3d6e3b264777d1cdc4e4ad1920a391e08c4",
   "parts": [
     {
@@ -41,6 +41,32 @@
     {
       "file": "nvv-web-1.0.68-09.pack",
       "sha256": "fdd6699829aedec10fa2df43acabde0d23ea72be5a343e821725108bc7832822"
+    }
+  ],
+  "overlays": [
+    {
+      "file": "app.js",
+      "sha256": "c609ff3eee1c7cc035d24667ca4a9f007c6bb30f8cde24d300207dfd90135c03"
+    },
+    {
+      "file": "workspace.js",
+      "sha256": "b8d209c81af465bb2eb415ddd69ed47e3caddb7baaf5435c7a8e9dbbad055a68"
+    },
+    {
+      "file": "map-tools.js",
+      "sha256": "843e2947e1fec5dc4ab97b4192e5f84e5d80154710ecf0ff782e4d2078c9e703"
+    },
+    {
+      "file": "field.css",
+      "sha256": "93a41b77f18406753a51bac7929d05be10604939c04b158db1fbd08780aa2a18"
+    },
+    {
+      "file": "index.html",
+      "sha256": "c6969bc7472ca6881dbef5c7433890a8d95da8d8b5f855192846f1dbfaa03c8b"
+    },
+    {
+      "file": "sw.js",
+      "sha256": "244d330e8d6ccae36e20edbd3b4144d835d0d45c900a243fb95d34522cf28da1"
     }
   ]
 }
