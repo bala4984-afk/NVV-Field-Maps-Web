@@ -1,0 +1,26 @@
+{
+  "version": "1.0.68",
+  "sha256": "0807724b032c32c8fdc72fdfbae6d3d6e3b264777d1cdc4e4ad1920a391e08c4",
+  "parts": [
+    {
+      "file": "nvv-web-1.0.68-00.part",
+      "sha256": "b77bb0235afca88ce33bf4137ae2607a24b2940b751243f28c812e4265e55ad6"
+    },
+    {
+      "file": "nvv-web-1.0.68-01.part",
+      "sha256": "00c1cbc68ec49b8935f1c73e1632c24440954d494c3b11a7049651908a177d2b"
+    },
+    {
+      "file": "nvv-web-1.0.68-02.part",
+      "sha256": "91bee1264ff740a81a42c4034577097ff5d95d716295aa6861a586f0a4b6746f"
+    },
+    {
+      "file": "nvv-web-1.0.68-03.part",
+      "sha256": "b95a7b8ba8767597097c62ef8908ae06f90e2e8f0beb1ca784d130d6741ccb66"
+    },
+    {
+      "file": "nvv-web-1.0.68-04.part",
+      "sha256": "ae12973f2e1dd22095ad75794b8f0f83fea9dd79d5eb7ccfb68f599d95f7f95d"
+    }
+  ]
+}
