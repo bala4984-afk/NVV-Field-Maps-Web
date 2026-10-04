@@ -1,2 +1,2 @@
-# NVV Field Maps 1.0.70
-Matches Android APK 1.0.70. Run `python3 build-web.py` to verify the baseline bundle and current source overlays before deployment. Current release includes template Excel export, DMS LT/RT, zoom controls, one drawing tray, vertex insertion/removal, whole-feature delete and safe editing/export flow. Projects remain on each visitor device.
+# NVV Field Maps 1.0.71
+Matches APK 1.0.71. Verified source overlays with packaged vendor/reference assets. Circle drawing/editing and polygon export, crossing list and chainage, direct map name edits, live area/perimeter, drawing recovery and appended circle/crossing Excel fields. Projects stay on each visitor device.
