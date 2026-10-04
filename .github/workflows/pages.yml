@@ -1,4 +1,4 @@
-name: Deploy NVV Field Maps to GitHub Pages
+name: Publish NVV Field Maps web
 on:
   push:
     branches: [main]
@@ -12,24 +12,18 @@ concurrency:
   cancel-in-progress: true
 jobs:
   deploy:
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
+      url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - name: Diagnose hosted FeatureStyle
-        run: |
-          curl -fsSL https://nvv-field-maps.bala-4984.chatgpt.site/app.js -o /tmp/host-app.js
-          grep -n "FeatureStyle" /tmp/host-app.js || true
-          grep -n -C 4 "DELETE" /tmp/host-app.js || true
-          grep -n -C 4 "remove.*onclick\|onclick.*remove\|confirm(" /tmp/host-app.js || true
-          curl -fsSL https://nvv-field-maps.bala-4984.chatgpt.site/trays.js -o /tmp/host-trays.js
-          grep -n "FeatureStyle" /tmp/host-trays.js || true
+      - name: Verify and unpack complete web app
+        run: python3 build-web.py
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: .
-      - name: Deploy to GitHub Pages
-        id: deployment
+          path: public
+      - id: deploy
         uses: actions/deploy-pages@v4
+
