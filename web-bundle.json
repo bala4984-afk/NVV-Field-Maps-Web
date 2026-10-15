@@ -1,5 +1,5 @@
 {
-  "version": "1.0.75",
+  "version": "1.0.76",
   "sha256": "0807724b032c32c8fdc72fdfbae6d3d6e3b264777d1cdc4e4ad1920a391e08c4",
   "parts": [
     {
@@ -46,11 +46,11 @@
   "overlays": [
     {
       "file": "app.js",
-      "sha256": "ea115743f18b36a5cd60dbf94e3590a24f83b12a4609cf3c1af822728856f96b"
+      "sha256": "93dca65487a4db635f205066b2849dd1d4916bca77f30c0ca04280fbb855a734"
     },
     {
       "file": "workspace.js",
-      "sha256": "f62a594c0aee44908344da3f167e47edc994ec9409a27ebd05071f777102540a"
+      "sha256": "e32db0444c6750df0f530df556e8b9909e06ef638476e19b19d16e9e2a3912aa"
     },
     {
       "file": "map-tools.js",
@@ -66,11 +66,11 @@
     },
     {
       "file": "index.html",
-      "sha256": "15b1d6fb76c43d147d92a1b50ce93237722079bccc06cbf7a965867b322c2221"
+      "sha256": "337e3d65c24bbab885d46cadcf12513a90defc9b9072e7a9491a402ba3f13ef4"
     },
     {
       "file": "sw.js",
-      "sha256": "6739e30c396b95f76da33e1d921da31674f403b081c253d1a326e2434f3c2d23"
+      "sha256": "d86100c53fa16d57d12349e739e2e6b2e9348e4711d7495fe006d1dbb119a208"
     },
     {
       "file": "survey-extras.js",
@@ -86,11 +86,15 @@
     },
     {
       "file": "feature-style.js",
-      "sha256": "436f96ac23483875c3889c4ce10e54cabcbf32625ec69f57a9245d4cced363bd"
+      "sha256": "2686f5bc7edef9c8be77ef8e5a435336a25fa6f8ce2bf22b958ccb193f1e919d"
     },
     {
       "file": "kml-projects.js",
-      "sha256": "fc2bc119f32603c5e6edd1f710bad201c3ae7e5f0ec35de68f11bdff16de0eda"
+      "sha256": "dbfb67528fc8e4b1ced84a6c6829dfbdad348d37f8142d1931f6ecdb5a942e82"
+    },
+    {
+      "file": "project-storage.js",
+      "sha256": "5d7629c3822bce2350978ccc1be221a0ef78bd66547269d580318a22189d3525"
     }
   ]
 }
