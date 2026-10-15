@@ -48,7 +48,7 @@
  if(!(editSession&&selected===id)){cancelEdit();stopDrawing();show(null);selected=id;editSession=NVVStateSnapshot();}
  const f=active();if(!f)return;editor.hidden=true;render();
  const fields=pointFields({...f.points[0],label:f.name});fields[0].label='Point name';fields[0].required=true;
- let saved=false;
+ let saved=false;window.NVVPointEditorValid=()=>!saved&&!!editSession&&selected===id&&active()===f;
  modal('Edit point',fields,v=>{const p=toPoint(v);commit(()=>{Object.assign(f.points[0],p);f.name=p.label});saveEdit();saved=true;});
  $('dialog').addEventListener('close',()=>{if(!saved&&editSession&&selected===id)cancelEdit();},{once:true});
  return;

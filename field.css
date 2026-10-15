@@ -27,3 +27,21 @@
 .project-feature{grid-template-columns:minmax(0,1fr) auto}.project-feature .feature-actions{grid-column:1 / -1}.project-feature .project-toggle{float:none;margin-left:3px;min-width:48px}.project-feature .feature-name{width:100%}
 
 .survey-map-moving .survey-point-label,.survey-map-moving .survey-vertex-label{visibility:hidden!important}
+
+/* Compact coordinate editor keeps the survey map visible. */
+dialog.compact-point-editor{inset:auto 0 10px;margin:0 auto;width:min(430px,calc(100vw - 20px));max-height:56dvh;padding:12px;overflow:hidden;box-sizing:border-box}
+.compact-point-editor::backdrop{background:rgba(8,26,40,.08)}
+.compact-point-editor #form{display:flex;flex-direction:column;max-height:calc(56dvh - 26px)}
+.compact-point-editor h2{display:flex;align-items:center;justify-content:space-between;flex-shrink:0;font-size:17px;margin:0 0 5px}
+.compact-point-editor #fields{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:5px 10px;overflow:auto;min-height:0;padding:3px}
+.compact-point-editor #fields label{margin:0;font-size:12px;min-width:0}
+.compact-point-editor #fields label[hidden]{display:none!important}
+.compact-point-editor .coordinate-wide{grid-column:1/-1}
+.compact-point-editor input,.compact-point-editor select{box-sizing:border-box;width:100%;min-width:0;font-size:16px;padding:6px;min-height:36px;margin-top:2px}
+.compact-point-editor #form>.row{background:white;flex-shrink:0;padding-top:7px}
+.compact-point-editor #form>.row button{min-height:40px;padding:7px}
+.compact-point-editor #form-error:empty{display:none}
+.compact-point-editor #form-error{font-size:12px;margin:3px 0}
+.compact-point-editor .point-edit-minimize{min-height:32px;width:36px;padding:0;font-size:23px}
+.point-edit-dock{position:absolute;bottom:84px;left:50%;transform:translateX(-50%);z-index:1100;background:white;box-shadow:0 2px 10px #1236;min-height:44px}
+.point-edit-dock[hidden]{display:none}
