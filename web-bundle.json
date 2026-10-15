@@ -1,5 +1,5 @@
 {
-  "version": "1.0.78",
+  "version": "1.0.79",
   "sha256": "0807724b032c32c8fdc72fdfbae6d3d6e3b264777d1cdc4e4ad1920a391e08c4",
   "parts": [
     {
@@ -50,7 +50,7 @@
     },
     {
       "file": "workspace.js",
-      "sha256": "e2f746f79af7f8ae3fa266b71cfcddfb1e5220f7c3e63a2e9f8f703a4dfbdc22"
+      "sha256": "48f78d11a1939acc1a5f435aeea1ae5bd514b835aee97bb7bdb5a3d4fa2faa62"
     },
     {
       "file": "map-tools.js",
@@ -66,11 +66,11 @@
     },
     {
       "file": "index.html",
-      "sha256": "799b7e2179e7b72f10c24982d3370294e32b4b6011642d28aaaf0406c7a918a3"
+      "sha256": "7202717aaed79799408e3cba9b0cba7f418e38345d889acafa971c5700a1ae28"
     },
     {
       "file": "sw.js",
-      "sha256": "95acbff0e14e32c43da3f1b3c4e2512d5a4cd875334401bc167b5a69a5c90359"
+      "sha256": "85535770c81e5834e173a74433d43c2d0ec6c497a5433372ab6dff2d184529a1"
     },
     {
       "file": "survey-extras.js",
