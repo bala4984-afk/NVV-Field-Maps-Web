@@ -1,2 +1,2 @@
-# NVV Field Maps 1.0.77
-Matches APK 1.0.77. Opened project name and consistent project, nested folder, category and feature visibility switches. Existing projects retained. Run python3 build-web.py to verify the baseline package and current source overlays. Projects remain on each visitor device.
+# NVV Field Maps 1.0.78
+Matches APK 1.0.78. Faster viewport-based map rendering, reusable map layers, lazy project feature lists, cached edit snapshots and fewer labels during movement. Full survey geometry is preserved for editing and export. Google Hybrid remains the default. Run python3 build-web.py to verify packaged reference assets and current source overlays. Projects stay on each visitor device.

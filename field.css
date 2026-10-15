@@ -25,3 +25,5 @@
 .drag-dialog-handle{touch-action:none;cursor:move;user-select:none}.selected-actions{max-width:calc(100% - 20px);flex-wrap:wrap}
 
 .project-feature{grid-template-columns:minmax(0,1fr) auto}.project-feature .feature-actions{grid-column:1 / -1}.project-feature .project-toggle{float:none;margin-left:3px;min-width:48px}.project-feature .feature-name{width:100%}
+
+.survey-map-moving .survey-point-label,.survey-map-moving .survey-vertex-label{visibility:hidden!important}
