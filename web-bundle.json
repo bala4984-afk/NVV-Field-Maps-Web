@@ -1,5 +1,5 @@
 {
-  "version": "1.0.73",
+  "version": "1.0.74",
   "sha256": "0807724b032c32c8fdc72fdfbae6d3d6e3b264777d1cdc4e4ad1920a391e08c4",
   "parts": [
     {
@@ -46,7 +46,7 @@
   "overlays": [
     {
       "file": "app.js",
-      "sha256": "47f2b50778b5e11db1703e4dac0618f86562668511ab6305049317e30e8ea53c"
+      "sha256": "b46eb018305d7bfc95c5bbcd7f895c74612496ecece53cbc91b482673fa887c9"
     },
     {
       "file": "workspace.js",
@@ -66,11 +66,11 @@
     },
     {
       "file": "index.html",
-      "sha256": "916457294e2269cd54d5b320a8acc442d2f370fa1edfed919b216b27e21fa8cf"
+      "sha256": "2ad9a3165c28cf9632ba69b2151d0243804c0ffafcfe6b3684dc866a4fe14f08"
     },
     {
       "file": "sw.js",
-      "sha256": "a3a54231451b80ed8f8b080d060be6e342f34524ad828946e0f9e7f5979afa68"
+      "sha256": "660df350fc93098fa924963cc3e84c3278dc5b2e0781d4693df7c16d1f56803a"
     },
     {
       "file": "survey-extras.js",
@@ -83,6 +83,14 @@
     {
       "file": "coordinates.js",
       "sha256": "78358da5bae962cba878bc5bca9af2dd763cd5d3ad07eb6c01120e5da08ee20e"
+    },
+    {
+      "file": "feature-style.js",
+      "sha256": "436f96ac23483875c3889c4ce10e54cabcbf32625ec69f57a9245d4cced363bd"
+    },
+    {
+      "file": "kml-projects.js",
+      "sha256": "fc2bc119f32603c5e6edd1f710bad201c3ae7e5f0ec35de68f11bdff16de0eda"
     }
   ]
 }
