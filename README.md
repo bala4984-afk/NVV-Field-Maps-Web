@@ -1,2 +1,2 @@
-# NVV Field Maps 1.0.71
-Matches APK 1.0.71. Verified source overlays with packaged vendor/reference assets. Circle drawing/editing and polygon export, crossing list and chainage, direct map name edits, live area/perimeter, drawing recovery and appended circle/crossing Excel fields. Projects stay on each visitor device.
+# NVV Field Maps 1.0.72
+Matches APK 1.0.72. Project-only organization, editable WGS84 UTM/decimal degree/DMS point coordinates and persistent coordinate settings. Existing projects retained. Run python3 build-web.py to verify the baseline package and current source overlays. Projects remain on each visitor device.

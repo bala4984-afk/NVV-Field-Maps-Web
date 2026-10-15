@@ -1,5 +1,5 @@
 {
-  "version": "1.0.71",
+  "version": "1.0.72",
   "sha256": "0807724b032c32c8fdc72fdfbae6d3d6e3b264777d1cdc4e4ad1920a391e08c4",
   "parts": [
     {
@@ -46,11 +46,11 @@
   "overlays": [
     {
       "file": "app.js",
-      "sha256": "c609ff3eee1c7cc035d24667ca4a9f007c6bb30f8cde24d300207dfd90135c03"
+      "sha256": "47f2b50778b5e11db1703e4dac0618f86562668511ab6305049317e30e8ea53c"
     },
     {
       "file": "workspace.js",
-      "sha256": "57f989cfdc1248027f14d2e2eff3737fd0716f5fd3fd13139c19d15813053a16"
+      "sha256": "cb7d909e6276c5451caa67d35068f22a3a020e4f2147f97532d20fe1d048805e"
     },
     {
       "file": "map-tools.js",
@@ -66,11 +66,11 @@
     },
     {
       "file": "index.html",
-      "sha256": "73bea57d2932dbe932d6e586354dc8f4d220565ac452f8264276cb9ebffadd88"
+      "sha256": "b7a5dd09360ca923199da102836a0c4ebba84428f77f0f93c81ea58ae37dd04e"
     },
     {
       "file": "sw.js",
-      "sha256": "8787e9889991408cea614989315193ae98472b8a346dc8582b98ba94544fc3fc"
+      "sha256": "4abc602749c06fe50b77b81fc2824259d351cfe3e5995f68ae12a921bfb14db2"
     },
     {
       "file": "survey-extras.js",
@@ -79,6 +79,10 @@
     {
       "file": "vertex-labels.js",
       "sha256": "61727406a44c4cff3ad140a7358ac74040e02cfc22c1ed61995ebe3a658e05a5"
+    },
+    {
+      "file": "coordinates.js",
+      "sha256": "afff0fe2169d8ff07e2c04bfd64d1f394d6821cae2c8d16ef6694904cebbf4f5"
     }
   ]
 }
