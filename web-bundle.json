@@ -1,5 +1,5 @@
 {
-  "version": "1.0.74",
+  "version": "1.0.75",
   "sha256": "0807724b032c32c8fdc72fdfbae6d3d6e3b264777d1cdc4e4ad1920a391e08c4",
   "parts": [
     {
@@ -46,7 +46,7 @@
   "overlays": [
     {
       "file": "app.js",
-      "sha256": "b46eb018305d7bfc95c5bbcd7f895c74612496ecece53cbc91b482673fa887c9"
+      "sha256": "ea115743f18b36a5cd60dbf94e3590a24f83b12a4609cf3c1af822728856f96b"
     },
     {
       "file": "workspace.js",
@@ -66,11 +66,11 @@
     },
     {
       "file": "index.html",
-      "sha256": "2ad9a3165c28cf9632ba69b2151d0243804c0ffafcfe6b3684dc866a4fe14f08"
+      "sha256": "15b1d6fb76c43d147d92a1b50ce93237722079bccc06cbf7a965867b322c2221"
     },
     {
       "file": "sw.js",
-      "sha256": "660df350fc93098fa924963cc3e84c3278dc5b2e0781d4693df7c16d1f56803a"
+      "sha256": "6739e30c396b95f76da33e1d921da31674f403b081c253d1a326e2434f3c2d23"
     },
     {
       "file": "survey-extras.js",
