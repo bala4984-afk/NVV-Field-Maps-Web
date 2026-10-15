@@ -1,5 +1,5 @@
 {
-  "version": "1.0.72",
+  "version": "1.0.73",
   "sha256": "0807724b032c32c8fdc72fdfbae6d3d6e3b264777d1cdc4e4ad1920a391e08c4",
   "parts": [
     {
@@ -50,7 +50,7 @@
     },
     {
       "file": "workspace.js",
-      "sha256": "cb7d909e6276c5451caa67d35068f22a3a020e4f2147f97532d20fe1d048805e"
+      "sha256": "f62a594c0aee44908344da3f167e47edc994ec9409a27ebd05071f777102540a"
     },
     {
       "file": "map-tools.js",
@@ -58,7 +58,7 @@
     },
     {
       "file": "field.css",
-      "sha256": "93a41b77f18406753a51bac7929d05be10604939c04b158db1fbd08780aa2a18"
+      "sha256": "225cbc20d2d57fd651224ed3311d191be3a67ef1bc7373d6def168ac301f712f"
     },
     {
       "file": "excel-report.js",
@@ -66,11 +66,11 @@
     },
     {
       "file": "index.html",
-      "sha256": "b7a5dd09360ca923199da102836a0c4ebba84428f77f0f93c81ea58ae37dd04e"
+      "sha256": "916457294e2269cd54d5b320a8acc442d2f370fa1edfed919b216b27e21fa8cf"
     },
     {
       "file": "sw.js",
-      "sha256": "4abc602749c06fe50b77b81fc2824259d351cfe3e5995f68ae12a921bfb14db2"
+      "sha256": "a3a54231451b80ed8f8b080d060be6e342f34524ad828946e0f9e7f5979afa68"
     },
     {
       "file": "survey-extras.js",
