@@ -1,5 +1,5 @@
 {
-  "version": "1.0.82",
+  "version": "1.0.83",
   "sha256": "0807724b032c32c8fdc72fdfbae6d3d6e3b264777d1cdc4e4ad1920a391e08c4",
   "parts": [
     {
@@ -45,8 +45,12 @@
   ],
   "overlays": [
     {
+      "file": "data/ap-existing-transmission-lines.pack",
+      "sha256": "f72d567c95bf62e49fc9abe5fce64b45df8ad44d2f81e85a093f11a189e8c921"
+    },
+    {
       "file": "existing-lines.js",
-      "sha256": "4e128ca3caf1f92fb911fcd80a50da1c1d34a35b061f03ab11a55951e978d33a"
+      "sha256": "3bd17658257e3540b1f65bb82b2554b8cb56b8725f82c4a1a894c9ee26802514"
     },
     {
       "file": "editing.js",
@@ -70,7 +74,7 @@
     },
     {
       "file": "field.css",
-      "sha256": "6a88dc685343b8400132d8f30e4e1537206cbf689c36f2d7aa8b1c2382f6d56e"
+      "sha256": "b5afd4b6f6dbe5cd18614dd0936187346fec90b291d213ab04b41b53b4bbd927"
     },
     {
       "file": "excel-report.js",
@@ -78,11 +82,11 @@
     },
     {
       "file": "index.html",
-      "sha256": "28a3f02131e0f64a201466fabc782b911c7264759c769cf88aa68e02b4d84de7"
+      "sha256": "61e6cc529baf37e4b92e66622400f0602c427c7251ec8a06d1c48fa0914c3607"
     },
     {
       "file": "sw.js",
-      "sha256": "6e752dfb7c366667355b395f2817ad8af8e71a151f6fb27dcf3c0919a1bf929e"
+      "sha256": "e6596927f69bacbae65b394c8d2747d1d6b47e4b1eada649c26fe96824085736"
     },
     {
       "file": "survey-extras.js",
@@ -98,7 +102,7 @@
     },
     {
       "file": "feature-style.js",
-      "sha256": "2686f5bc7edef9c8be77ef8e5a435336a25fa6f8ce2bf22b958ccb193f1e919d"
+      "sha256": "b6531057f84af5d94ba0b6026a6014d90394deeab8c209247227eb11407a9732"
     },
     {
       "file": "kml-projects.js",
