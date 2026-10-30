@@ -4,9 +4,9 @@ const toolbar=L.control({position:'topright'});let output,measureButton;const me
 function stop(){measureHUD.hidden=true;measuring=false;measureButton.setAttribute('aria-pressed','false');map.getContainer().classList.remove('measuring')}
 function redraw(){if(measuring)window.NVVDraft?.save({mode:'Measurement',points:points.map(p=>({lat:p.lat,lon:p.lng,alt:null}))});
 measurement.clearLayers();after.hidden=remove.hidden=choice===null;let total=0;
-if(points.length)L.polyline(points,{color:'#c23865',weight:3,dashArray:'6 5',interactive:false}).addTo(measurement);
+let livePath;if(points.length)livePath=L.polyline(points,{color:'#c23865',weight:3,dashArray:'6 5',interactive:false}).addTo(measurement);
 points.forEach((p,i)=>{
-const node=document.createElement('span');node.textContent='V'+(i+1);const marker=L.marker(p,{draggable:true,bubblingMouseEvents:false,title:'Measurement vertex '+(i+1),icon:L.divIcon({className:'map-select-vertex'+(choice===i?' chosen-vertex':''),html:node.outerHTML,iconSize:[32,32],iconAnchor:[16,16]})}).addTo(measurement);marker.on('click',e=>{if(e.originalEvent)L.DomEvent.stopPropagation(e.originalEvent);choice=i;insert=false;redraw()});marker.on('dragend',()=>{points[i]=marker.getLatLng();choice=i;redraw()});
+const node=document.createElement('span');node.textContent='V'+(i+1);const marker=L.marker(p,{draggable:true,bubblingMouseEvents:false,title:'Measurement vertex '+(i+1),icon:L.divIcon({className:'map-select-vertex'+(choice===i?' chosen-vertex':''),html:node.outerHTML,iconSize:[32,32],iconAnchor:[16,16]})}).addTo(measurement);marker.on('click',e=>{if(e.originalEvent)L.DomEvent.stopPropagation(e.originalEvent);choice=i;insert=false;redraw()});marker.on('dragstart',()=>window.NVVVertexDragging=true);marker.on('drag',()=>{livePath?.setLatLngs(points.map((p,n)=>n===i?marker.getLatLng():p));});marker.on('dragend',()=>{window.NVVVertexDragging=false;points[i]=marker.getLatLng();choice=i;redraw()});
 if(i)total+=map.distance(points[i-1],p);
 });
 if(window.NVVRouteMetrics)window.NVVRouteMetrics(points.map(p=>({lat:p.lat,lon:p.lng})),measurement);
@@ -22,7 +22,7 @@ output=document.createElement('div');output.className='measure-result';output.se
 add('Clear measure','Clear measured points',()=>{stop();points=[];measurement.clearLayers();output.textContent=''});return box};toolbar.addTo(map);
 const previousSelect=select;select=function(id){if(!measuring)previousSelect(id)};
 function accept(p){if(!measuring||mapPick)return false;const ll=L.latLng(p.lat,p.lon??p.lng);if(insert&&choice!==null){points.splice(choice+1,0,ll);choice++;insert=false}else points.push(ll);redraw();return true}window.NVVMeasurement={accept,isActive:()=>measuring,undo:()=>{if(points.length)undoMeasurement.click();else stop()},clear:()=>cancelMeasurement.click(),resume:d=>{points=d.points.map(p=>L.latLng(p.lat,p.lon));measuring=true;measureHUD.hidden=false;measureButton.setAttribute('aria-pressed','true');redraw()}};map.on('click',e=>accept(e.latlng));
-let refreshTimer;map.on('moveend',()=>{if(measuring){clearTimeout(refreshTimer);refreshTimer=setTimeout(redraw,120)}});
+let refreshTimer;map.on('moveend',()=>{if(measuring&&!window.NVVVertexDragging){clearTimeout(refreshTimer);refreshTimer=setTimeout(redraw,120)}});
 document.addEventListener('survey-stop-tools',stop);
 
 })();

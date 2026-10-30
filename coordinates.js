@@ -15,7 +15,7 @@
  dock.type=minimize.type='button';dock.className='point-edit-dock';dock.textContent='✎ Edit point';dock.hidden=true;dock.setAttribute('aria-label','Restore point editor');document.querySelector('main').append(dock);
  minimize.textContent='−';minimize.className='point-edit-minimize';minimize.setAttribute('aria-label','Minimize point editor');let suspending=false;
  minimize.onclick=()=>{document.activeElement?.blur();suspending=true;dock.disabled=true;dialog.close();dock.hidden=false;};
- dock.onclick=()=>{dock.hidden=true;if(!window.NVVPointEditorValid?.()){toast('Select the point and tap Edit again.');return;}dialog.showModal();};
+ dock.onclick=()=>{dock.hidden=true;if(!window.NVVPointEditorValid?.()){toast('Select the point and tap Edit again.');return;}dialog.show();};
  dialog.addEventListener('close',e=>{if(suspending){suspending=false;dock.disabled=false;e.stopImmediatePropagation();return;}dock.hidden=true;dialog.classList.remove('compact-point-editor');},{capture:true});
  const previousModal=modal;modal=function(title,fs,save){dock.hidden=true;dialog.classList.toggle('compact-point-editor',title==='Edit point');previousModal(title,fs,save);if(title!=='Save points')mount($('fields'));if(title==='Edit point'){for(const n of ['left','right','top','bottom','margin','max-height','transform'])dialog.style.removeProperty(n);$('dialog-title').append(minimize);for(const n of ['label','coordMode','alt'])$('fields').querySelector('[name='+n+']')?.closest('label').classList.add('coordinate-wide');}};
 })();

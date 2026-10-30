@@ -45,3 +45,22 @@ dialog.compact-point-editor{inset:auto 0 10px;margin:0 auto;width:min(430px,calc
 .compact-point-editor .point-edit-minimize{min-height:32px;width:36px;padding:0;font-size:23px}
 .point-edit-dock{position:absolute;bottom:84px;left:50%;transform:translateX(-50%);z-index:1100;background:white;box-shadow:0 2px 10px #1236;min-height:44px}
 .point-edit-dock[hidden]{display:none}
+/* Floating forms leave the map available for inspection and navigation. */
+dialog[open]{position:fixed;z-index:1600;box-shadow:0 6px 28px #102b3555;max-width:calc(100vw - 16px);max-height:calc(100dvh - 16px)}
+dialog[open]:not(.compact-point-editor):not(.feature-save-dialog):not(.feature-properties){inset:12% 0 auto;margin:0 auto}
+dialog[open] #dialog-title{touch-action:none;cursor:move;user-select:none;padding-bottom:7px;border-bottom:1px solid #dce5e9}
+dialog[open] #form{display:flex;flex-direction:column;min-height:0}
+dialog[open] #fields{min-height:0;overflow:auto}
+dialog[open] #dialog-title,dialog[open] #form>.row{flex-shrink:0}
+dialog.feature-properties{inset:auto 10px 12px auto;margin:0;width:390px;padding:12px;overflow:hidden}
+.feature-properties #form{display:flex;flex-direction:column;max-height:58dvh}
+.feature-properties #dialog-title{font-size:17px;margin:0 0 5px;flex-shrink:0}
+.feature-properties #fields{overflow:auto;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:7px 10px;padding:3px}
+.feature-properties #fields label{font-size:12px;margin:0;min-width:0}
+.feature-properties label:has([name=name]),.feature-properties label:has([name=description]){grid-column:1/-1}
+.feature-properties input,.feature-properties select{padding:6px;width:100%;min-width:0;min-height:36px;font-size:16px}
+.feature-properties #form>.row{flex-shrink:0;padding-top:8px;background:white}
+.feature-properties #form-error:empty{display:none}
+.map-select-vertex{touch-action:none}
+.map-select-vertex span{pointer-events:none}
+.chosen-vertex{filter:drop-shadow(0 0 4px #143b49)}

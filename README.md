@@ -1,2 +1,2 @@
-# NVV Field Maps 1.0.80
-Matches APK 1.0.80. Compact bottom point editor with side-by-side UTM fields, visible Save/Cancel, and minimize/restore retaining form entries. Supports selected UTM, decimal degree and DMS settings. Run python3 build-web.py to verify package and overlays. Projects remain on each visitor device.
+# NVV Field Maps 1.0.81
+Matches APK 1.0.81. Floating mouse/touch dialogs remember their positions and keep the map interactive. Selected feature properties (◐) support point icons/sizes/colours/labels/descriptions and line colours/weights/opacity/dashes. Vertex drags preview connected segments continuously; Save/Cancel and Undo/Redo retain geometry and appearance. Pinch zoom no longer rotates the map accidentally; North controls rotation. Supported styles round-trip in KML/KMZ. Existing project data stays on each device. Run python3 build-web.py to verify baseline and current overlays.
