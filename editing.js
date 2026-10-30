@@ -46,5 +46,8 @@
  };
  // Expose properties beside project feature actions as well as map selection.
  const tree=$('project-tree');if(tree)new MutationObserver(()=>{for(const actions of tree.querySelectorAll('.feature-actions')){if(actions.querySelector('[data-properties]'))continue;const edit=actions.querySelector('button');if(!edit)continue;const b=document.createElement('button');b.type='button';b.textContent='◐';b.dataset.properties='true';b.setAttribute('aria-label','Properties '+edit.getAttribute('aria-label')?.replace(/^Edit /,''));b.onclick=()=>{const name=edit.getAttribute('aria-label')?.replace(/^Edit /,'');const row=actions.parentElement,selectButton=row.querySelector('.feature-name');selectButton?.click();if(active()?.name===name)NVVProperties(selected);};actions.append(b);}}).observe(tree,{childList:true,subtree:true});
+ for(const head of document.querySelectorAll('.drag-dialog-handle'))head.dataset.movable='true';
+ const registerDialogs=()=>{for(const el of document.querySelectorAll('dialog,[role=dialog],.field-panel')){const head=el.querySelector('h2,.panel-head,.dialog-title');if(head&&!head.dataset.movable&&!head.classList.contains('drag-dialog-handle')){head.dataset.movable='true';window.NVVMakeMovable?.(el,head);}}};
+ new MutationObserver(registerDialogs).observe(document.body,{childList:true,subtree:true});registerDialogs();
  render();
 })();

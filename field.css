@@ -64,3 +64,15 @@ dialog.feature-properties{inset:auto 10px 12px auto;margin:0;width:390px;padding
 .map-select-vertex{touch-action:none}
 .map-select-vertex span{pointer-events:none}
 .chosen-vertex{filter:drop-shadow(0 0 4px #143b49)}
+
+/* Black app text; raster imagery labels are supplied by the map provider. */
+body,body :is(h1,h2,h3,p,span,small,strong,b,label,legend,summary,a,button,input,select,option,textarea,th,td,div){color:#000!important}
+.field-layout header{background:#f7fafb}
+.field-layout #toast,.route-total,.measure-total-label{background:#fff!important;border:1px solid #b6c9d0}
+.edit-save-actions button:last-child,.project-toggle,.visibility-toggle{background:#e5f1f5!important}
+.existing-line-controls{padding-bottom:12px;border-bottom:1px solid #d5e1e5;margin-bottom:12px}
+.existing-line-controls>button{width:100%;margin-bottom:6px}
+.existing-line-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:5px;margin:7px 0}
+.existing-line-row span{font-size:13px;overflow-wrap:anywhere}
+.existing-line-row button{padding:6px 8px;font-size:12px}
+.existing-line-row [aria-checked=true]{background:#e0f2e9}

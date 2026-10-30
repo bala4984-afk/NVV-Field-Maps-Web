@@ -1,5 +1,5 @@
 {
-  "version": "1.0.81",
+  "version": "1.0.82",
   "sha256": "0807724b032c32c8fdc72fdfbae6d3d6e3b264777d1cdc4e4ad1920a391e08c4",
   "parts": [
     {
@@ -45,8 +45,12 @@
   ],
   "overlays": [
     {
+      "file": "existing-lines.js",
+      "sha256": "4e128ca3caf1f92fb911fcd80a50da1c1d34a35b061f03ab11a55951e978d33a"
+    },
+    {
       "file": "editing.js",
-      "sha256": "f4a835a81c60fc9899a81f093087a965fa627ce988d40edf85c7559908840af8"
+      "sha256": "c2c78a6a6b66f9e7c8ad34fe476777d10ff9f5059bd054d4c9f6d44981a56ca3"
     },
     {
       "file": "core.js",
@@ -58,7 +62,7 @@
     },
     {
       "file": "workspace.js",
-      "sha256": "3c12b8b05bc2a6d139e8b5c2732823e2b74c05800f00b00c62fc57adf099315a"
+      "sha256": "15a87cd7b6311458c9704ec98cd12f4ce238c8f4fd33a7d5cd11040a6eb3b7da"
     },
     {
       "file": "map-tools.js",
@@ -66,7 +70,7 @@
     },
     {
       "file": "field.css",
-      "sha256": "3443e89986d8409f26a3aaecd829a3d14d81701711eef74f22b05f8e3295d147"
+      "sha256": "6a88dc685343b8400132d8f30e4e1537206cbf689c36f2d7aa8b1c2382f6d56e"
     },
     {
       "file": "excel-report.js",
@@ -74,11 +78,11 @@
     },
     {
       "file": "index.html",
-      "sha256": "39b46ad5f96683e8dae46407a54d47afdb9a1110e805a50c076b83652b1a8010"
+      "sha256": "28a3f02131e0f64a201466fabc782b911c7264759c769cf88aa68e02b4d84de7"
     },
     {
       "file": "sw.js",
-      "sha256": "ef01dc79102af41d2eb20fd52bc3a8956e27248d86f78f0a73e55dc28cb1bcfb"
+      "sha256": "6e752dfb7c366667355b395f2817ad8af8e71a151f6fb27dcf3c0919a1bf929e"
     },
     {
       "file": "survey-extras.js",
