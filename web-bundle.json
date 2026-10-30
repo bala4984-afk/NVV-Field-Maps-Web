@@ -1,5 +1,5 @@
 {
-  "version": "1.0.83",
+  "version": "1.0.84",
   "sha256": "0807724b032c32c8fdc72fdfbae6d3d6e3b264777d1cdc4e4ad1920a391e08c4",
   "parts": [
     {
@@ -50,11 +50,11 @@
     },
     {
       "file": "existing-lines.js",
-      "sha256": "3bd17658257e3540b1f65bb82b2554b8cb56b8725f82c4a1a894c9ee26802514"
+      "sha256": "5c600939fc4842eb3f985f52195cd727fc98e6572100632331a9b11a0d30f454"
     },
     {
       "file": "editing.js",
-      "sha256": "c2c78a6a6b66f9e7c8ad34fe476777d10ff9f5059bd054d4c9f6d44981a56ca3"
+      "sha256": "b559a887c1ec91a9fcf23cccf302920f2f9a315259ab27f5b3cb471b14df9411"
     },
     {
       "file": "core.js",
@@ -66,15 +66,15 @@
     },
     {
       "file": "workspace.js",
-      "sha256": "15a87cd7b6311458c9704ec98cd12f4ce238c8f4fd33a7d5cd11040a6eb3b7da"
+      "sha256": "4800ce7b66ea7f469d12572867eafdf5689d419f22bbd70c2489eee034dd47b7"
     },
     {
       "file": "map-tools.js",
-      "sha256": "363582a01b9051794cc6994b0c15324a4df4d3869f6189238197c55e99fa7e0e"
+      "sha256": "2dc721a17b07beef059e3688624f249eede44efbbd8175ff13a11a6f7d30992f"
     },
     {
       "file": "field.css",
-      "sha256": "b5afd4b6f6dbe5cd18614dd0936187346fec90b291d213ab04b41b53b4bbd927"
+      "sha256": "22260bb2f8b7d3cc04f1e1dbdcf6bdf4f450a5979513449d850360c8b3f71220"
     },
     {
       "file": "excel-report.js",
@@ -82,15 +82,15 @@
     },
     {
       "file": "index.html",
-      "sha256": "61e6cc529baf37e4b92e66622400f0602c427c7251ec8a06d1c48fa0914c3607"
+      "sha256": "d06808adacf70babd5c7dd1a09cadbc7a740716da4950af9a8428fe14aeb4ace"
     },
     {
       "file": "sw.js",
-      "sha256": "e6596927f69bacbae65b394c8d2747d1d6b47e4b1eada649c26fe96824085736"
+      "sha256": "32b616841b02a6c8af8fc129deb5843bccce3f05e8779b5129044d59825dda65"
     },
     {
       "file": "survey-extras.js",
-      "sha256": "4bd662ec3db15b312fb3f96882e134b84715222c28bfdaf417a36c007720fde1"
+      "sha256": "5220734e851129e8a27959c6a5df45f5f3018cea446de09bbf6e8b8db64e31d2"
     },
     {
       "file": "vertex-labels.js",
@@ -102,11 +102,11 @@
     },
     {
       "file": "feature-style.js",
-      "sha256": "b6531057f84af5d94ba0b6026a6014d90394deeab8c209247227eb11407a9732"
+      "sha256": "9b17ce0cd24c27bbe6485d2d16a0de067f325cb86d0d281557d2463bbf8de7fe"
     },
     {
       "file": "kml-projects.js",
-      "sha256": "dee410a85f746d2db83c349a767dfdf4d40cc6cbf6140d3ae892bec712e0e544"
+      "sha256": "534c8057fbdf46dab048c9a6f7481b8ac6ceb15d2277276ab612b02b2b65ff9a"
     },
     {
       "file": "project-storage.js",
