@@ -88,3 +88,7 @@ dialog.feature-properties{inset:auto 10px 12px auto;margin:0;width:390px;padding
 .point-symbol-grid .symbol-preview>span{max-width:26px;max-height:26px}
 .point-symbol-picker select[hidden]{display:none!important}
 #toast{pointer-events:none}
+.feature-clipboard-actions{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:8px 0}
+.feature-clipboard-actions small{overflow-wrap:anywhere;font-size:12px}
+.export-file-info{overflow-wrap:anywhere;font-weight:600}
+#dialog #form>.row:has([aria-label="Share exported file"]){flex-wrap:wrap}
