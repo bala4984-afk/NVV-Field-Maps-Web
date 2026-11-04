@@ -1,5 +1,5 @@
 {
-  "version": "1.0.86",
+  "version": "1.0.88",
   "sha256": "0807724b032c32c8fdc72fdfbae6d3d6e3b264777d1cdc4e4ad1920a391e08c4",
   "parts": [
     {
@@ -74,11 +74,11 @@
     },
     {
       "file": "workspace.js",
-      "sha256": "e1488ff643b93b07d8e537f8afe4f5df5ba9019314b2bdd327ba48402b4ec367"
+      "sha256": "e2d37c72fc0e39b80fa21f0ff5607b2d5c2699af97f41ebe142a350b25211541"
     },
     {
       "file": "map-tools.js",
-      "sha256": "2dc721a17b07beef059e3688624f249eede44efbbd8175ff13a11a6f7d30992f"
+      "sha256": "43fc56f5e8a23f8aad8a40f3300b1313dd72ed3ca5ace001b6756aa2d581da36"
     },
     {
       "file": "field.css",
@@ -90,11 +90,11 @@
     },
     {
       "file": "index.html",
-      "sha256": "ddf815c9a25d08b8da9bdfa903f8d689d50fee39ac53032b2979682774769983"
+      "sha256": "0e03566c8490195d6d0ef8f44797e8ffd22efff03b1bc227180da9dbcf248b4e"
     },
     {
       "file": "sw.js",
-      "sha256": "45a0349764865070c64abeefbdf21ce5c760a4ca9921115b13e3ad0994892ecb"
+      "sha256": "693fcfe45d7eb6470b0b1c2b522d9558734e7348299860533313d38bb9daa61b"
     },
     {
       "file": "survey-extras.js",
@@ -106,7 +106,7 @@
     },
     {
       "file": "coordinates.js",
-      "sha256": "13b64e601b86714e3f99db3481aadd34c801cbf134f80166b796733549db80f8"
+      "sha256": "daa80f00f7c7876df9f331a1f692a824950172362f742b152b0afba129974e38"
     },
     {
       "file": "feature-style.js",
