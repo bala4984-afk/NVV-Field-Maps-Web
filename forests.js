@@ -5,7 +5,8 @@
  document.querySelector('.layer-controls').append(section);
  const styles={ap:['AP Forest','#16864c',true],telangana:['Telangana Forest','#607d23',false],soi:['SOI Forest','#c57516',false],gati:['GatiShakti · other protected areas','#1e83b5',false],parks:['National Parks · GatiShakti','#b2449c',true]},checks={},groups={},loaded=new Map();
  const master=$('forest-master'),status=$('forest-status'),retry=$('forest-retry');
- map.createPane('forest-reference');map.getPane('forest-reference').style.zIndex=340;
+ // Keep boundaries in the rotating basemap's stacking context, above tiles and below surveys.
+ map.createPane('forest-reference',map.getPane('overlayPane').parentNode);map.getPane('forest-reference').style.zIndex=340;
  const renderer=L.canvas({pane:'forest-reference',padding:0.1});let manifest,epoch=0;
  let saved={};try{saved=JSON.parse(localStorage.getItem('line-survey-forests')||'{}')}catch{}
  master.checked=saved.master??true;
@@ -49,6 +50,7 @@
   }catch(e){if(turn!==epoch)return;status.textContent=e.message==='Failed to fetch'?'This region is not cached. Open the local app while connected, then retry.':e.message;retry.hidden=false}
  }
  async function init(){try{const r=await fetch('data/forests/manifest.json');if(!r.ok)throw Error('Forest catalogue unavailable.');manifest=await r.json();for(const [k,c] of Object.entries(checks)){const total=manifest.shards.filter(s=>s.layer===k).reduce((n,s)=>n+s.count,0);c.closest('label').title=total.toLocaleString()+' supplied polygons'}draw()}catch(e){status.textContent=e.message;retry.hidden=false}}
- master.onchange=()=>{save();draw()};retry.onclick=()=>manifest?draw():init();map.on('moveend',draw);
+ let viewTimer;function refreshView(){clearTimeout(viewTimer);viewTimer=setTimeout(draw,120)}
+ master.onchange=()=>{save();draw()};retry.onclick=()=>manifest?draw():init();map.on('moveend zoomend rotate',refreshView);
  map.attributionControl.addAttribution('Forest layers: user-supplied AP / Telangana / SOI / GatiShakti files');init();
 })();

@@ -1,5 +1,5 @@
 {
-  "version": "1.0.85",
+  "version": "1.0.86",
   "sha256": "0807724b032c32c8fdc72fdfbae6d3d6e3b264777d1cdc4e4ad1920a391e08c4",
   "parts": [
     {
@@ -45,6 +45,10 @@
   ],
   "overlays": [
     {
+      "file": "forests.js",
+      "sha256": "e974069c11b6fa6da246cf656d638268d8384336c114db52073df662e58044c8"
+    },
+    {
       "file": "share-copy.js",
       "sha256": "6023982846d7b5b9588760a3570fe3aa7e07fec477229e98c5fad87ebf6a3d4b"
     },
@@ -86,11 +90,11 @@
     },
     {
       "file": "index.html",
-      "sha256": "e07232eb58b8f36c2705e4c558acefd1d703d931d23e8a0dc912c08a1d845ce7"
+      "sha256": "ddf815c9a25d08b8da9bdfa903f8d689d50fee39ac53032b2979682774769983"
     },
     {
       "file": "sw.js",
-      "sha256": "c22f392a6c113f15eb9a33b55dfd50bb7fe62cd7734b3228b4598dc171f25132"
+      "sha256": "45a0349764865070c64abeefbdf21ce5c760a4ca9921115b13e3ad0994892ecb"
     },
     {
       "file": "survey-extras.js",
